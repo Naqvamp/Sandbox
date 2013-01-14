@@ -580,7 +580,10 @@ bool ChatHandler::HandleCastSpellNECommand(const char* args, WorldSession *m_ses
 
 bool ChatHandler::HandleCastSelfCommand(const char* args, WorldSession *m_session)
 {
-	Unit *target = getSelectedChar(m_session, false);
+	Unit *target = m_session->GetPlayer();
+	//SystemMessage(m_session, "Auto-targeting self.");
+	GreenSystemMessage(m_session, "Auto-targeting self.");
+/*	Unit *target = getSelectedChar(m_session, false);
 	if(!target)
 		target = getSelectedCreature(m_session, false);
 	if(!target)
@@ -588,6 +591,7 @@ bool ChatHandler::HandleCastSelfCommand(const char* args, WorldSession *m_sessio
 		RedSystemMessage(m_session, "Must select a char or creature.");
 		return false;
 	}
+*/
 
 	uint32 spellid = atol(args);
 	SpellEntry *spellentry = dbcSpell.LookupEntry(spellid);
@@ -606,12 +610,12 @@ bool ChatHandler::HandleCastSelfCommand(const char* args, WorldSession *m_sessio
 		return false;
 	}
 
-	BlueSystemMessage(m_session, "Target is casting spell %d on himself.", spellid);
+	BlueSystemMessage(m_session, "You have cast the spell %d on yourself.", spellid);
 	SpellCastTargets targets;
 	targets.m_unitTarget = target->GetGUID();
 	sp->prepare(&targets);
 
-	switch ( target->GetTypeId() )
+/*	switch ( target->GetTypeId() )
 	{
 		case TYPEID_PLAYER:
 			if ( m_session->GetPlayer() != target )
@@ -621,6 +625,7 @@ bool ChatHandler::HandleCastSelfCommand(const char* args, WorldSession *m_sessio
 			sGMLog.writefromsession( m_session, "used castself with spell %d on CREATURE %u [%s], sqlid %u", spellid, static_cast< Creature* >( target )->GetEntry(), static_cast< Creature* >( target )->GetCreatureInfo() ? static_cast< Creature* >( target )->GetCreatureInfo()->Name : "unknown", static_cast< Creature* >( target )->GetSQL_id() );
 			break;
 	}
+*/
 
 	return true;
 }
