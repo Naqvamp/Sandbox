@@ -322,6 +322,7 @@ uint32 LogonCommHandler::ClientConnected(string AccountName, WorldSocket * Socke
 	uint32 request_id = next_request++;
 	size_t i = 0;
 	const char * acct = AccountName.c_str();
+	sLog.outString( " >> sending request for account information: `%s` (request %u).", AccountName.c_str(), request_id);
 	sLog.outDebug ( " >> sending request for account information: `%s` (request %u).", AccountName.c_str(), request_id);
 	//  sLog.outColor(TNORMAL, "\n");
 

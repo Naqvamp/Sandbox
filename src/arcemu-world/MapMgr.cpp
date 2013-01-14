@@ -330,6 +330,7 @@ void MapMgr::PushObject(Object *obj)
 
 	if(plObj)
 	{
+		sLog.outString("Creating player "I64FMT" for himself.", obj->GetGUID());
 		sLog.outDetail("Creating player "I64FMT" for himself.", obj->GetGUID());
 		ByteBuffer pbuf(10000);
 		count = plObj->BuildCreateUpdateBlockForPlayer(&pbuf, plObj);

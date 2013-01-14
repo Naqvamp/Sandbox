@@ -145,7 +145,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				data = sChatHandler.FillMessageData( CHAT_MSG_EMOTE, CanUseCommand('c') ? LANG_UNIVERSAL : lang,  msg.c_str(), _player->GetGUID(), _player->bGMTagOn ? 4 : 0 );
 			GetPlayer()->SendMessageToSet( data, true ,true );
 
-			//sLog.outString("[emote] %s: %s", _player->GetName(), msg.c_str());
+			sLog.outString("[Emote] %s: %s", _player->GetName(), msg.c_str());
 			delete data;
 			
 			pMsg=msg.c_str();
@@ -190,7 +190,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 			}
 
 			
-			//sLog.outString("[say] %s: %s", _player->GetName(), msg.c_str());
+			sLog.outString("[Say] %s: %s", _player->GetName(), msg.c_str());
 			delete data;
 			pMsg=msg.c_str();
 			pMisc=0;
@@ -255,7 +255,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 					_player->GetGroup()->Unlock();
 				}
 			}
-			//sLog.outString("[party] %s: %s", _player->GetName(), msg.c_str());
+			sLog.outString("[Party] %s: %s", _player->GetName(), msg.c_str());
 			delete data;
 			pMsg=msg.c_str();
 			pMisc=0;
@@ -276,7 +276,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
 			if(_player->m_playerInfo->guild)
 				_player->m_playerInfo->guild->GuildChat(msg.c_str(), this, lang);
-
+			sLog.outString("[Guild] %s: %s", _player->GetName(), msg.c_str());
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -295,7 +295,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
 			if(_player->m_playerInfo->guild)
 				_player->m_playerInfo->guild->OfficerChat(msg.c_str(), this, lang);
-
+			sLog.outString("[Officer] %s: %s", _player->GetName(), msg.c_str());
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -332,7 +332,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 			//sWorld.SendZoneMessage(data, GetPlayer()->GetZoneId(), this);
 			_player->GetMapMgr()->SendChatMessageToCellPlayers(_player, data, 2, 1, lang, this);
 			delete data;
-			//sLog.outString("[yell] %s: %s", _player->GetName(), msg.c_str());
+			sLog.outString("[Yell] %s: %s", _player->GetName(), msg.c_str());
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -421,7 +421,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				delete data;
 			}
 
-			//sLog.outString("[whisper] %s to %s: %s", _player->GetName(), to.c_str(), msg.c_str());
+			sLog.outString("[Whisper] %s to %s: %s", _player->GetName(), to.c_str(), msg.c_str());
 			pMsg=msg.c_str();
 			pMisc=to.c_str();
 		} break;
@@ -444,7 +444,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 			if(chn) 
 				chn->Say(GetPlayer(),msg.c_str(), NULL, false);
 
-			//sLog.outString("[%s] %s: %s", channel.c_str(), _player->GetName(), msg.c_str());
+			sLog.outString("[%s] %s: %s", channel.c_str(), _player->GetName(), msg.c_str());
 			pMsg=msg.c_str();
 			pMisc=channel.c_str();
 

@@ -6406,7 +6406,7 @@ void Player::SendInitialLogonPackets()
 	// cebernic for speedhack bug
 	m_lastRunSpeed = 0;
 	UpdateSpeed();
-
+	sLog.outString("WORLD: Sent initial logon packets for %s.", GetName());
 	sLog.outDetail("WORLD: Sent initial logon packets for %s.", GetName());
 }
 
