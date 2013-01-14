@@ -542,7 +542,7 @@ protected:
 	bool HandleAccountUnmuteCommand(const char * args, WorldSession * m_session);
 	/* For skill related GM commands */
 	SkillNameMgr *SkillNameManager;
-
+	bool HandleShowBankCommand(const char* args, WorldSession *m_session);	//Custom bank command
 	bool HandleFixScaleCommand(const char * args, WorldSession * m_session);
 	bool HandleAddTrainerSpellCommand( const char * args, WorldSession * m_session );
 };

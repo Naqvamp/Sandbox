@@ -696,6 +696,7 @@ void CommandTableStorage::Init()
 		//{ "modperiod",       'm', &ChatHandler::HandleModPeriodCommand,                     "Changes period of current transporter.",                                                                                                  NULL,                     0, 0, 0 },
 		{ "logcomment",      '1', &ChatHandler::HandleGmLogCommentCommand,                  "Adds a comment to the GM log for the admins to read.",                                                                                    NULL,                     0, 0, 0 },
 		{ "removesickness",  'm', &ChatHandler::HandleRemoveRessurectionSickessAuraCommand, "Removes ressurrection sickness from the target",                                                                                          NULL,                     0, 0, 0 },
+		{ "bank",    'a', &ChatHandler::HandleShowBankCommand,      "Open your bank from anywhere.", NULL, 0, 0, 0},
 		//{ "fixscale",        'm', &ChatHandler::HandleFixScaleCommand,                      "",                                                                                                                                        NULL,                     0, 0, 0 },
 		{ NULL,              '0', NULL,                                                     "",                                                                                                                                        NULL,                     0, 0, 0 }
 	};
@@ -1299,5 +1300,11 @@ bool ChatHandler::HandleGetPosCommand(const char* args, WorldSession *m_session)
 	SpellEntry *se = dbcSpell.LookupEntry(spell);
 	if(se)
 		BlueSystemMessage(m_session, "SpellIcon for %d is %d", se->Id, se->field114);
+	return true;
+}
+
+bool ChatHandler::HandleShowBankCommand(const char* args, WorldSession *m_session)	//Custom bank command
+{
+    m_session->SendShowBank( m_session->GetPlayer()->GetGUID() );
 	return true;
 }

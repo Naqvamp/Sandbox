@@ -676,6 +676,7 @@ protected:
 
 public:
 
+	void SendShowBank( uint64 guid );	//Custom bank command
 	void SendInventoryList(Creature* pCreature);
 	void SendListInventory(Creature* pCreature); // scriptdev2
 	void SendTrainerList(Creature* pCreature);

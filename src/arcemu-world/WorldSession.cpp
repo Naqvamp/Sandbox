@@ -1107,3 +1107,11 @@ const char* WorldSession::LocalizedBroadCast(uint32 id)
 	else
 		return wb->text;
 }
+
+void WorldSession::SendShowBank( uint64 guid )	//Custom bank command
+{
+    WorldPacket data( SMSG_SHOW_BANK, 8 );
+    data << guid;
+    SendPacket( &data );
+	return;
+}
