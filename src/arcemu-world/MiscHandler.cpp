@@ -757,7 +757,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & recv_data )
 	WorldPacket data( SMSG_LOGOUT_RESPONSE, 5 );
 
 	sLog.outDebug( "WORLD: Recvd CMSG_LOGOUT_REQUEST Message" );
-
+	sLog.outString("[%s] %s", _player->GetName(), "is logging out.");
 	if(pPlayer)
 	{
 		sHookInterface.OnLogoutRequest(pPlayer);
@@ -806,7 +806,9 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandlePlayerLogoutOpcode( WorldPacket & recv_data )
 {
+	Player *pPlayer = GetPlayer();
 	sLog.outDebug( "WORLD: Recvd CMSG_PLAYER_LOGOUT Message" );
+	sLog.outString("[%s] %s", _player->GetName(), "has logged out.");
 	if(!HasGMPermissions())
 	{
 		// send "You do not have permission to use this"

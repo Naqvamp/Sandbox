@@ -1,3 +1,4 @@
 Rev 1: Edited and disabled select commands.
 Rev 2: Added .bank command.
 Rev 3: Enabled chat logging to console window.
+Rev 4: Disabled some logging to console. Enabled pet create command. More changes to the command structure.

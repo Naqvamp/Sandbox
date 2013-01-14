@@ -922,7 +922,7 @@ bool ChatHandler::HandleAddItemSetCommand(const char* args, WorldSession* m_sess
 
 	Player *chr = getSelectedChar(m_session);
 	if (chr == NULL) {
-	RedSystemMessage(m_session, "Unable to select character.");
+		RedSystemMessage(m_session, "Unable to select character.");
 	return true;
 	}
 
@@ -1257,14 +1257,17 @@ bool ChatHandler::HandleModifyLevelCommand(const char* args, WorldSession* m_ses
 	return true;
 }
 
-bool ChatHandler::HandleCreatePetCommand(const char* args, WorldSession* m_session)
+bool ChatHandler::HandleCreatePetCommand(const char* args, WorldSession* m_session)	//Fixed per create command. --Hemi
 {
-/*	if(!args || strlen(args) < 2)
+	//Creature * crt = getSelectedCreature(m_session, true);
+	//uint32 Entry = crt->GetUInt32Value(OBJECT_FIELD_ENTRY);
+	if(!args || strlen(args) < 2)
 		return false;
 
 	uint32 Entry = atol(args);
 	if(!Entry)
 		return false;
+
 	CreatureProto * pTemplate = CreatureProtoStorage.LookupEntry(Entry);
 	CreatureInfo * pCreatureInfo = CreatureNameStorage.LookupEntry(Entry);
 	if(!pTemplate || !pCreatureInfo)
@@ -1275,10 +1278,10 @@ bool ChatHandler::HandleCreatePetCommand(const char* args, WorldSession* m_sessi
 	Player * plr = m_session->GetPlayer();
 
 	// spawn a creature of this id to create from
-	Creature * pCreature = new Creature(HIGHGUID_UNIT ,1);//no need in guid
+	Creature * pCreature = new Creature(HIGHGUID_TYPE_PET);//no need in guid
 	CreatureSpawn * sp = new CreatureSpawn;
 	sp->id = 1;
-	sp->bytes = 0;
+	sp->bytes1 = 0;
 	sp->bytes2 = 0;
 	sp->displayid = pCreatureInfo->Male_DisplayID;
 	sp->emote_state = 0;
@@ -1300,7 +1303,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args, WorldSession* m_sessi
 	{
 		old_tame->Dismiss(true);
 	}
-
+	
 	// create a pet from this creature
 	Pet * pPet = objmgr.CreatePet();
 	pPet->SetInstanceID(plr->GetInstanceID());
@@ -1310,9 +1313,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args, WorldSession* m_sessi
 	// remove the temp creature
 	delete sp;
 	delete pCreature;
-
 	sGMLog.writefromsession(m_session, "used create pet entry %u", Entry);
-*/
 	return true;
 }
 
@@ -2764,7 +2765,7 @@ bool ChatHandler::HandleRehashCommand(const char * args, WorldSession * m_sessio
 	rehashes
 	*/
 	char msg[250];
-	snprintf(msg, 250, "%s is rehashing config file.", m_session->GetPlayer()->GetName());
+	snprintf(msg, 250, "%s is reloading config files.", m_session->GetPlayer()->GetName());	//Edited sctring grammar.
 	sWorld.SendWorldWideScreenText(msg, 0);
 	sWorld.SendWorldText(msg, 0);
 	sWorld.Rehash(true);

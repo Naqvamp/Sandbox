@@ -476,12 +476,26 @@ void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
 			
 			sPlrLog.writefromsession(this, "deleted character %s (GUID: %u)", name.c_str(), (uint32)guid);
 
+			CharacterDatabase.WaitExecute("INSERT INTO logon_deleted.characters SELECT * FROM logon.characters WHERE guid = %u", (uint32)guid);	//Store deleted characters into a backup database. --Hemiria
 			CharacterDatabase.WaitExecute("DELETE FROM characters WHERE guid = %u", (uint32)guid);
 
 			Corpse * c=objmgr.GetCorpseByOwner((uint32)guid);
 			if(c)
+			{
+				CharacterDatabase.Execute("INSERT INTO logon_deleted.corpses SELECT * FROM logon.corpses WHERE guid = %u", c->GetLowGUID());
 				CharacterDatabase.Execute("DELETE FROM corpses WHERE guid = %u", c->GetLowGUID());
-
+			}
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.playeritems SELECT * FROM logon.playeritems WHERE ownerguid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.gm_tickets SELECT * FROM logon.gm_tickets WHERE playerGuid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.playerpets SELECT * FROM logon.playerpets WHERE ownerguid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.playerpetspells SELECT * FROM logon.playerpetspells WHERE ownerguid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.tutorials SELECT * FROM logon.tutorials WHERE playerId = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.questlog SELECT * FROM logon.questlog WHERE player_guid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.playercooldowns SELECT * FROM logon.playercooldowns WHERE player_guid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.mailbox SELECT * FROM logon.mailbox WHERE player_guid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.social_friends SELECT * FROM logon.social_friends WHERE character_guid = %u OR friend_guid = %u", (uint32)guid);
+			CharacterDatabase.Execute("INSERT INTO logon_deleted.social_ignores SELECT * FROM logon.social_ignores WHERE character_guid = %u OR ignore_guid = %u", (uint32)guid);
+			
 			CharacterDatabase.Execute("DELETE FROM playeritems WHERE ownerguid=%u",(uint32)guid);
 			CharacterDatabase.Execute("DELETE FROM gm_tickets WHERE playerGuid = %u", (uint32)guid);
 			CharacterDatabase.Execute("DELETE FROM playerpets WHERE ownerguid = %u", (uint32)guid);

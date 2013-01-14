@@ -366,7 +366,7 @@ void HandleConsoleInput(BaseConsole * pConsole, const char * szInput)
 		{ &HandleKickCommand, "kick", "<plrname> <reason>", "Kicks player x for reason y." },
 		{ &HandleMOTDCommand, "getmotd", "none", "View the current MOTD" },
 		{ &HandleMOTDCommand, "setmotd", "<new motd>", "Sets a new MOTD" },
-//		{ &HandleOnlinePlayersCommand, "online", "none", "Shows online players." },
+		{ &HandleOnlinePlayersCommand, "online", "none", "Shows online players." },	//Uncommented console "online" command.
 		{ &HandlePlayerInfoCommand, "playerinfo", "<plrname>", "Shows information about a player." },
 		{ &HandleShutDownCommand, "exit", "[delay]", "Shuts down server with optional delay in seconds." },
 		{ &HandleShutDownCommand, "shutdown", "[delay]", "Shuts down server with optional delay in seconds." },
