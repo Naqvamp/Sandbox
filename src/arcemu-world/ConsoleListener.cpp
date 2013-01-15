@@ -366,7 +366,7 @@ void HandleConsoleInput(BaseConsole * pConsole, const char * szInput)
 		{ &HandleKickCommand, "kick", "<plrname> <reason>", "Kicks player x for reason y." },
 		{ &HandleMOTDCommand, "getmotd", "none", "View the current MOTD" },
 		{ &HandleMOTDCommand, "setmotd", "<new motd>", "Sets a new MOTD" },
-		{ &HandleOnlinePlayersCommand, "online", "none", "Shows online players." },	//Uncommented console "online" command.
+		{ &HandleOnlinePlayersCommand, "online", "none", "Shows online players." },	//Uncommented console "online" command and fixed it --Hemi
 		{ &HandlePlayerInfoCommand, "playerinfo", "<plrname>", "Shows information about a player." },
 		{ &HandleShutDownCommand, "exit", "[delay]", "Shuts down server with optional delay in seconds." },
 		{ &HandleShutDownCommand, "shutdown", "[delay]", "Shuts down server with optional delay in seconds." },
@@ -376,7 +376,9 @@ void HandleConsoleInput(BaseConsole * pConsole, const char * szInput)
 		{ &HandleWAnnounceCommand, "w", "<wannounce string>", "Shows the message in all client title areas." },
 		{ &HandleWAnnounceCommand, "wannounce", "<wannounce string>", "Shows the message in all client title areas." },
 		{ &HandleWhisperCommand, "whisper","<player> <message>", "Whispers a message to someone from the console." },
-		{ &HandleNameHashCommand, "getnamehash" , "<text>" , "Returns the crc32 hash of <text>" } ,
+		{ &HandleNameHashCommand, "getnamehash" , "<text>" , "Returns the crc32 hash of <text>" },
+		{ &HandleClearConsoleCommand, "clear", "None", "Clears the console screen." },	//Added console clear command. It gets spammy --Hemi
+		{ &HandleKillByPlrNameCommand, "killplr", "<name>", "Kills a Player" },	//Added killplr command. For those pests! --Hemi
 		{ &HandleRevivePlayer, "reviveplr", "<name>", "Revives a Player" },
 		{ NULL, NULL, NULL, NULL },
 	};

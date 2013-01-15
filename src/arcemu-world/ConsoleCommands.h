@@ -38,5 +38,7 @@ bool HandleUnbanAccountCommand(BaseConsole * pConsole, int argc, const char * ar
 bool HandleWAnnounceCommand(BaseConsole * pConsole, int argc, const char * argv[]);
 bool HandleWhisperCommand(BaseConsole * pConsole, int argc, const char * argv[]);
 bool HandleNameHashCommand(BaseConsole * pConsole, int argc, const char * argv[]);
+bool HandleClearConsoleCommand(BaseConsole* pConsole, int argc, const char* argv[]);	//Added console clear command. It gets spammy --Hemi
 bool HandleRevivePlayer(BaseConsole * pConsole, int argc, const char * argv[]);
+bool HandleKillByPlrNameCommand(BaseConsole* pConsole, int argc, const char* argv[]);	//Added killplr command. For those pests! --Hemi
 #endif

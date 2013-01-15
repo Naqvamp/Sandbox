@@ -70,7 +70,7 @@ bool HandleGMsCommand(BaseConsole * pConsole, int argc, const char * argv[])
 	WorldPacket data;
 	//bool first = true;
 
-	pConsole->Write("There are the following GM's online on this server: \r\n");
+	pConsole->Write("The following GM's are online: \r\n");	//Changed grammar formatting
 	pConsole->Write("======================================================\r\n");
 	pConsole->Write("| %21s | %15s | % 03s  |\r\n" , "Name", "Permissions", "Latency");
 	pConsole->Write("======================================================\r\n");
@@ -92,11 +92,11 @@ bool HandleGMsCommand(BaseConsole * pConsole, int argc, const char * argv[])
 
 
 bool HandleOnlinePlayersCommand(BaseConsole * pConsole, int argc, const char * argv[])
-{
+{	//Command now functional
 	WorldPacket data;
 	//bool first = true;
 
-	pConsole->Write("There following players online on this server: \r\n");
+	pConsole->Write("The following players are online: \r\n");	//Changed grammar formatting
 	pConsole->Write("======================================================\r\n");
 	pConsole->Write("| %21s | %15s | % 03s  |\r\n" , "Name", "Level", "Latency");
 	pConsole->Write("======================================================\r\n");
@@ -105,8 +105,8 @@ bool HandleOnlinePlayersCommand(BaseConsole * pConsole, int argc, const char * a
 	objmgr._playerslock.AcquireReadLock();
 	for (itr = objmgr._players.begin(); itr != objmgr._players.end(); itr++)
 	{
-		pConsole->Write("| %21s | %15s | %03u ms |\r\n" , itr->second->GetName(), itr->second->GetSession()->GetPlayer()->getLevel(), itr->second->GetSession()->GetLatency());
-	}
+		pConsole->Write("| %21s | %15u | %03u ms |\r\n" , itr->second->GetName(), itr->second->GetSession()->GetPlayer()->getLevel(), itr->second->GetSession()->GetLatency());
+	}	//Changed the %15s cast to %15u --Hemi
 	objmgr._playerslock.ReleaseReadLock();
 
 	pConsole->Write("======================================================\r\n\r\n");
@@ -132,7 +132,7 @@ bool HandleAnnounceCommand(BaseConsole * pConsole, int argc, const char * argv[]
 	ConcatArgs(outstr, argc, 0, argv);
 	snprintf(pAnnounce, 1024, "%sConsole: |r%s", MSG_COLOR_LIGHTBLUE, outstr.c_str());
 	sWorld.SendWorldText(pAnnounce); // send message
-	pConsole->Write("Message sent.\r\n");
+	//pConsole->Write("Message sent.\r\n");	//We don't need to know if the message is sent. --Hemi
 	return true;
 }
 
@@ -147,7 +147,7 @@ bool HandleWAnnounceCommand(BaseConsole * pConsole, int argc, const char * argv[
 	ConcatArgs(outstr, argc, 0, argv);
 	snprintf(pAnnounce, 1024, "%sConsole: |r%s", MSG_COLOR_LIGHTBLUE, outstr.c_str());
 	sWorld.SendWorldWideScreenText(pAnnounce); // send message
-	pConsole->Write("Message sent.\r\n");
+	//pConsole->Write("Message sent.\r\n"); //We don't need to know if the message is sent. --Hemi
 	return true;
 }
 bool HandleWhisperCommand(BaseConsole * pConsole, int argc, const char * argv[])
@@ -363,7 +363,8 @@ bool HandleRevivePlayer(BaseConsole * pConsole, int argc, const char * argv[])
 	if(plr->isDead())
 	{
 		plr->RemoteRevive();
-		pConsole->Write("Revived player %s.\r\n", argv[1]);
+		plr->BroadcastMessage("%sConsole|r has revived you.", MSG_COLOR_LIGHTBLUE);	//Inform the player of who revived them.
+		//pConsole->Write("Revived player %s.\r\n", argv[1]); //We don't need to know if the player was revived. --Hemi
 	} else
 	{
 		pConsole->Write("Player %s is not dead.\r\n", argv[1]);
@@ -387,5 +388,35 @@ bool HandleNameHashCommand(BaseConsole * pConsole, int argc, const char * argv[]
 		ConcatArgs(spname, argc, 0, argv);
 	pConsole->Write( "Name Hash for %s is 0x%X" , spname.c_str() , crc32((const unsigned char*)spname.c_str(), (unsigned int)spname.length()) );
 	sWorld.Rehash(true);
+	return true;
+}
+
+bool HandleClearConsoleCommand(BaseConsole* pConsole, int argc, const char* argv[])
+{	//Added console clear command. It gets spammy --Hemi
+	system("cls");
+	pConsole->Write("Out of the ashes, Chuck Norris appears! With a roundhouse kick, your console shall now be cleaned!");
+	return true;
+}
+
+bool HandleKillByPlrNameCommand(BaseConsole* pConsole, int argc, const char* argv[])
+{	//Added killplr command. For those pests! --Hemi
+	if ( !argc )
+		return false;
+	
+	Player *plr = objmgr.GetPlayer(argv[1], false);
+	if(!plr)
+	{
+		pConsole->Write( "Could not find player %s.\r\n", argv[1]);
+		return true;
+	}
+
+	if(plr->isDead())
+	{
+		pConsole->Write("Player %s is already dead", argv[1]);
+	} else {
+		plr->SetUInt32Value(UNIT_FIELD_HEALTH, 0); // Die, insect
+		plr->KillPlayer();
+		plr->BroadcastMessage("%sConsole|r: has killed you.", MSG_COLOR_LIGHTBLUE);	//Inform the player of how they have died.
+	}
 	return true;
 }

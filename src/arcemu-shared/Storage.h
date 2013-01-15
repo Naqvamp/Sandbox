@@ -27,7 +27,8 @@
 // pooled allocations
 //#define STORAGE_ALLOCATION_POOLS 1
 
-#define STORAGE_ARRAY_MAX 200000
+//#define STORAGE_ARRAY_MAX 200000
+#define STORAGE_ARRAY_MAX 1000000000 //Set max Item Entry to 1 billion -Hemi
 
 #ifdef STORAGE_ALLOCATION_POOLS
 template<class T>
