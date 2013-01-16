@@ -394,7 +394,8 @@ bool HandleNameHashCommand(BaseConsole * pConsole, int argc, const char * argv[]
 bool HandleClearConsoleCommand(BaseConsole* pConsole, int argc, const char* argv[])
 {	//Added console clear command. It gets spammy --Hemi
 	system("cls");
-	pConsole->Write("Out of the ashes, Chuck Norris appears! With a roundhouse kick, your console shall now be cleaned!");
+	//pConsole->Write("Out of the ashes, Chuck Norris appears! With a roundhouse kick, your console shall now be cleaned!"); 
+	//Really? The point of this shit is to clear the console window not add shit to it. --Hemi
 	return true;
 }
 

@@ -136,7 +136,22 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
 			if(sWorld.interfaction_chat && lang > 0)
 				lang=0;
-
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			if(GetPlayer()->m_modlanguage >=0)
 				data = sChatHandler.FillMessageData( CHAT_MSG_EMOTE, GetPlayer()->m_modlanguage,  msg.c_str(), _player->GetGUID(), _player->bGMTagOn ? 4 : 0 );
 			else if (lang==0 && sWorld.interfaction_chat)
@@ -147,7 +162,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
 			sLog.outString("[Emote] %s: %s", _player->GetName(), msg.c_str());
 			delete data;
-			
+
 			pMsg=msg.c_str();
 			pMisc=0;
 
@@ -167,7 +182,22 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			if(GetPlayer()->m_modlanguage >=0)
 			{
 				data = sChatHandler.FillMessageData( CHAT_MSG_SAY, GetPlayer()->m_modlanguage,  msg.c_str(), _player->GetGUID(), _player->bGMTagOn ? 4 : 0 );
@@ -189,9 +219,9 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				}
 			}
 
-			
 			sLog.outString("[Say] %s: %s", _player->GetName(), msg.c_str());
 			delete data;
+
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -213,7 +243,22 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			Group *pGroup = _player->GetGroup();
 			if(pGroup == NULL) break;
 			
@@ -257,6 +302,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 			}
 			sLog.outString("[Party] %s: %s", _player->GetName(), msg.c_str());
 			delete data;
+
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -273,10 +319,26 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			if(_player->m_playerInfo->guild)
 				_player->m_playerInfo->guild->GuildChat(msg.c_str(), this, lang);
 			sLog.outString("[Guild] %s: %s", _player->GetName(), msg.c_str());
+
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -292,10 +354,26 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			if(_player->m_playerInfo->guild)
 				_player->m_playerInfo->guild->OfficerChat(msg.c_str(), this, lang);
 			sLog.outString("[Officer] %s: %s", _player->GetName(), msg.c_str());
+
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -314,6 +392,22 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			if(lang > 0 && LanguageSkills[lang] && _player->_HasSkillLine(LanguageSkills[lang]) == false)
 				return;
 
@@ -333,6 +427,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 			_player->GetMapMgr()->SendChatMessageToCellPlayers(_player, data, 2, 1, lang, this);
 			delete data;
 			sLog.outString("[Yell] %s: %s", _player->GetName(), msg.c_str());
+
 			pMsg=msg.c_str();
 			pMisc=0;
 		} break;
@@ -349,7 +444,22 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-		 
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cff888888";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			Player *player = objmgr.GetPlayer(to.c_str(), false);
 			if(!player)
 			{
@@ -420,8 +530,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SendPacket(data);
 				delete data;
 			}
-
 			sLog.outString("[Whisper] %s to %s: %s", _player->GetName(), to.c_str(), msg.c_str());
+
 			pMsg=msg.c_str();
 			pMisc=to.c_str();
 		} break;
@@ -436,7 +546,22 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-
+			
+			if(CanUseCommand('z'))
+			{	//Added chat colors for certain admin accounts. --Hemi
+				string temp;
+				if(_player->GetSession()->GetAccountId() == 1)
+				{
+					temp = "|cffff6060";
+					msg = temp + msg;
+				}
+				else if(_player->GetSession()->GetAccountId() == 3)
+				{
+					temp = "|cFFF52887";
+					msg = temp + msg;
+				}
+			}
+			
 			if (sChatHandler.ParseCommands(msg.c_str(), this) > 0)
 				break;
 
@@ -445,6 +570,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				chn->Say(GetPlayer(),msg.c_str(), NULL, false);
 
 			sLog.outString("[%s] %s: %s", channel.c_str(), _player->GetName(), msg.c_str());
+
 			pMsg=msg.c_str();
 			pMisc=channel.c_str();
 
