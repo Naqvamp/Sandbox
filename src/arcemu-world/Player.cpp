@@ -445,10 +445,11 @@ Player::Player( uint32 guid ) : m_mailBox(guid)
 	gmTargets.clear();
 	visiblityChangableSet.clear();
 	_splineMap.clear();
-
+	
 	for (i=0; i<NUM_COOLDOWN_TYPES; i++) {
 		m_cooldownMap[i].clear();
 	}
+	ColoredText	= false;	//Toggle for admin chat color. --Hemi
 }
 
 void Player::OnLogin()

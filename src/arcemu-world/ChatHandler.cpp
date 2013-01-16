@@ -136,21 +136,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
 			if(sWorld.interfaction_chat && lang > 0)
 				lang=0;
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			if(GetPlayer()->m_modlanguage >=0)
 				data = sChatHandler.FillMessageData( CHAT_MSG_EMOTE, GetPlayer()->m_modlanguage,  msg.c_str(), _player->GetGUID(), _player->bGMTagOn ? 4 : 0 );
@@ -182,21 +169,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			if(GetPlayer()->m_modlanguage >=0)
 			{
@@ -243,21 +217,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			Group *pGroup = _player->GetGroup();
 			if(pGroup == NULL) break;
@@ -319,21 +280,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			if(_player->m_playerInfo->guild)
 				_player->m_playerInfo->guild->GuildChat(msg.c_str(), this, lang);
@@ -354,21 +302,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			if(_player->m_playerInfo->guild)
 				_player->m_playerInfo->guild->OfficerChat(msg.c_str(), this, lang);
@@ -392,21 +327,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			if(lang > 0 && LanguageSkills[lang] && _player->_HasSkillLine(LanguageSkills[lang]) == false)
 				return;
@@ -444,21 +366,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cff888888";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+				
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			Player *player = objmgr.GetPlayer(to.c_str(), false);
 			if(!player)
@@ -546,21 +455,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 				SystemMessage("Your chat message was blocked by a server-side filter.");
 				return;
 			}
-			
-			if(CanUseCommand('z'))
-			{	//Added chat colors for certain admin accounts. --Hemi
-				string temp;
-				if(_player->GetSession()->GetAccountId() == 1)
-				{
-					temp = "|cffff6060";
-					msg = temp + msg;
-				}
-				else if(_player->GetSession()->GetAccountId() == 3)
-				{
-					temp = "|cFFF52887";
-					msg = temp + msg;
-				}
-			}
+
+			msg = HandleChatColor(msg);	//Added chat colors for certain admin accounts. --Hemi
 			
 			if (sChatHandler.ParseCommands(msg.c_str(), this) > 0)
 				break;

@@ -1990,6 +1990,7 @@ private:
 	void Social_SetNote(uint32 guid, const char * note);
 
 public:
+	bool ColoredText;	//Toggle for admin chat color. --Hemi
 	bool Social_IsIgnoring(PlayerInfo * m_info);
 	bool Social_IsIgnoring(uint32 guid);
 

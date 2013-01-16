@@ -543,6 +543,7 @@ protected:
 	/* For skill related GM commands */
 	SkillNameMgr *SkillNameManager;
 	bool HandleShowBankCommand(const char* args, WorldSession *m_session);	//Custom bank command
+	bool HandleColorChat(const char* args, WorldSession *m_session);	//Toggle for admin chat color. --Hemi
 	bool HandleFixScaleCommand(const char * args, WorldSession * m_session);
 	bool HandleAddTrainerSpellCommand( const char * args, WorldSession * m_session );
 };

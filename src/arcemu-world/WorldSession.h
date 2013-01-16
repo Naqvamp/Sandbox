@@ -155,6 +155,8 @@ class SERVER_DECL WorldSession
 {
 	friend class WorldSocket;
 public:
+	string HandleChatColor(string msg);	//Handle admin chat color. --Hemi
+	
 	WorldSession(uint32 id, string Name, WorldSocket *sock);
 	~WorldSession();
 

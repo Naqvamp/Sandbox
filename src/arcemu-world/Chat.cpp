@@ -71,7 +71,8 @@ ChatCommand * CommandTableStorage::GetSubCommandTable(const char * name)
 		return _instanceCommandTable;
 	else if(!strcmp(name, "arena"))
 		return _arenaCommandTable;
-	/*	else if(!strcmp(name, "account"))
+/*
+	else if(!strcmp(name, "account"))
 		return _accountCommandTable;
 	else if(!strcmp(name, "kick"))
 		return _kickCommandTable;
@@ -79,7 +80,8 @@ ChatCommand * CommandTableStorage::GetSubCommandTable(const char * name)
 		return _banCommandTable;
 	else if(!strcmp(name, "unban"))
 		return _unbanCommandTable;
-*/	return 0;
+*/
+	return 0;
 }
 
 #define dupe_command_table(ct, dt) this->dt = (ChatCommand*)allocate_and_copy(sizeof(ct)/* / sizeof(ct[0])*/, ct)
@@ -251,9 +253,11 @@ void CommandTableStorage::Init()
 		{ "combatreach",     'm', NULL,                                   "Modifies the combat reach of the selected target.",               NULL, UNIT_FIELD_COMBATREACH,            0,                    2 },
 		{ "npcemotestate",   'm', NULL,                                   "Modifies the NPC emote state of the selected target.",            NULL, UNIT_NPC_EMOTESTATE,               0,                    1 },
 		{ "bytes",           'm', NULL,                                   "WARNING! Modifies the bytes entry of selected target.",           NULL, UNIT_FIELD_BYTES_0,                0,                    1 },
-/*		{ "hp",              'm', NULL,                                   "Modifies health points (HP) of selected target",                  NULL, UNIT_FIELD_HEALTH,                 UNIT_FIELD_MAXHEALTH, 1 },
+/*
+		{ "hp",              'm', NULL,                                   "Modifies health points (HP) of selected target",                  NULL, UNIT_FIELD_HEALTH,                 UNIT_FIELD_MAXHEALTH, 1 },
 		{ "displayid",       'm', NULL,                                   "Modifies the display identifier (DisplayID) of the target.",      NULL, UNIT_FIELD_DISPLAYID,              0,                    1 },
-*/		{ NULL,              '0', NULL,                                   "",                                                                NULL, 0,                                 0,                    0 }
+*/
+		{ NULL,              '0', NULL,                                   "",                                                                NULL, 0,                                 0,                    0 }
 	};
 	dupe_command_table(modifyCommandTable, _modifyCommandTable);
 
@@ -437,10 +441,12 @@ void CommandTableStorage::Init()
 
 	static ChatCommand accountCommandTable[] =
 	{
-/*		{ "level",  'z', &ChatHandler::HandleAccountLevelCommand,  "Sets gm level on account. Pass it username and 0,1,2,3,az, etc.", NULL, 0, 0, 0 },
+/*
+		{ "level",  'z', &ChatHandler::HandleAccountLevelCommand,  "Sets gm level on account. Pass it username and 0,1,2,3,az, etc.", NULL, 0, 0, 0 },
 		{ "mute",   'a', &ChatHandler::HandleAccountMuteCommand,   "Mutes account for <timeperiod>.",                                 NULL, 0, 0, 0 },
 		{ "unmute", 'a', &ChatHandler::HandleAccountUnmuteCommand, "Unmutes account <x>",                                             NULL, 0, 0, 0 },
-*/		{ NULL,     '0', NULL,                                     "",                                                                NULL, 0, 0, 0 }
+*/
+		{ NULL,     '0', NULL,                                     "",                                                                NULL, 0, 0, 0 }
 	};
 	dupe_command_table(accountCommandTable, _accountCommandTable);
 
@@ -495,13 +501,15 @@ void CommandTableStorage::Init()
 		{ "reward",    '2', &ChatHandler::HandleQuestRewardCommand,    "Shows reward for quest <id>",                               NULL, 0, 0, 0 },
 		{ "status",    '2', &ChatHandler::HandleQuestStatusCommand,    "Lists the status of quest <id>",                            NULL, 0, 0, 0 },
 		{ "spawn",     '2', &ChatHandler::HandleQuestSpawnCommand,     "Port to spawn location for quest <id>",                     NULL, 0, 0, 0 },
-/*		{ "addboth",   '2', &ChatHandler::HandleQuestAddBothCommand,   "Add quest <id> to the targeted NPC as start & finish",      NULL, 0, 0, 0 },
+/*
+		{ "addboth",   '2', &ChatHandler::HandleQuestAddBothCommand,   "Add quest <id> to the targeted NPC as start & finish",      NULL, 0, 0, 0 },
 		{ "addfinish", '2', &ChatHandler::HandleQuestAddFinishCommand, "Add quest <id> to the targeted NPC as finisher",            NULL, 0, 0, 0 },
 		{ "addstart",  '2', &ChatHandler::HandleQuestAddStartCommand,  "Add quest <id> to the targeted NPC as starter",             NULL, 0, 0, 0 },
 		{ "delboth",   '2', &ChatHandler::HandleQuestDelBothCommand,   "Delete quest <id> from the targeted NPC as start & finish", NULL, 0, 0, 0 },
 		{ "delfinish", '2', &ChatHandler::HandleQuestDelFinishCommand, "Delete quest <id> from the targeted NPC as finisher",       NULL, 0, 0, 0 },
 		{ "delstart",  '2', &ChatHandler::HandleQuestDelStartCommand,  "Delete quest <id> from the targeted NPC as starter",        NULL, 0, 0, 0 },
-*/		{ NULL,        '0', NULL,                                      "",                                                          NULL, 0, 0, 0 }
+*/
+		{ NULL,        '0', NULL,                                      "",                                                          NULL, 0, 0, 0 }
 	};
 	dupe_command_table(questCommandTable, _questCommandTable);
 
@@ -515,10 +523,12 @@ void CommandTableStorage::Init()
 		{ "saveall",       's', &ChatHandler::HandleSaveAllCommand,         "Save's all playing characters",                            NULL, 0, 0, 0 },
 		{ "info",          '0', &ChatHandler::HandleInfoCommand,            "Server info",                                              NULL, 0, 0, 0 },
 		{ "netstatus",     '0', &ChatHandler::HandleNetworkStatusCommand,   "Shows network status.", NULL, 0, 0, 0 },
-/*		{ "reloadscripts", 'w', &ChatHandler::HandleReloadScriptsCommand,   "Reloads GM Scripts",                                       NULL, 0, 0, 0 },
+/*
+		{ "reloadscripts", 'w', &ChatHandler::HandleReloadScriptsCommand,   "Reloads GM Scripts",                                       NULL, 0, 0, 0 },
 		{ "shutdown",      'z', &ChatHandler::HandleShutdownCommand,        "Initiates server shutdown in <x> seconds (5 by default).", NULL, 0, 0, 0 },
 		{ "restart",       'z', &ChatHandler::HandleShutdownRestartCommand, "Initiates server restart in <x> seconds (5 by default).",  NULL, 0, 0, 0 },
-*/		{ NULL,            '0', NULL,                                       "",                                                         NULL, 0, 0, 0 }
+*/
+		{ NULL,            '0', NULL,                                       "",                                                         NULL, 0, 0, 0 }
 	};
 	dupe_command_table(serverCommandTable, _serverCommandTable);
 
@@ -555,11 +565,13 @@ void CommandTableStorage::Init()
 		{ "showinstances",       'z', &ChatHandler::HandleShowInstancesCommand,    "Shows persistent instances of selected Player",                                                                     NULL, 0, 0, 0 },
 		{ "repairitems",         'n', &ChatHandler::HandleRepairItemsCommand,      ".repairitems - Repair all items from selected player",                                                              NULL, 0, 0, 0 },
 		{ "settitle",			 'm', &ChatHandler::HandleSetTitle,				   "Adds title to a player",																					NULL, 0, 0, 0 },
-/*		//{ "learn",               'm', &ChatHandler::HandleLearnCommand,            "Learns spell",                                                                                                      NULL, 0, 0, 0 },
+/*
+		//{ "learn",               'm', &ChatHandler::HandleLearnCommand,            "Learns spell",                                                                                                      NULL, 0, 0, 0 },
 		//{ "additem",             'm', &ChatHandler::HandleAddInvItemCommand,       "Adds item x count y",                                                                                                                  NULL, 0, 0, 0 },
 		//{ "rename",              'm', &ChatHandler::HandleRenameCommand,           "Renames character x to y.",                                                                                         NULL, 0, 0, 0 },
 		//{ "forcerename",         'm', &ChatHandler::HandleForceRenameCommand,      "Forces character x to rename his char next login",                                                                  NULL, 0, 0, 0 },
-*/		{ NULL,                  '0', NULL,                                        "",                                                                                                                  NULL, 0, 0, 0 }
+*/
+		{ NULL,                  '0', NULL,                                        "",                                                                                                                  NULL, 0, 0, 0 }
 	};
 	dupe_command_table(characterCommandTable, _characterCommandTable);
 
@@ -590,19 +602,23 @@ void CommandTableStorage::Init()
 
 	static ChatCommand kickCommandTable[] =
 	{
-/*		{ "byplayer",  'f', &ChatHandler::HandleKillByPlayerCommand,  "Disconnects the player with name <s>.",          NULL, 0, 0, 0 },
+/*
+		{ "byplayer",  'f', &ChatHandler::HandleKillByPlayerCommand,  "Disconnects the player with name <s>.",          NULL, 0, 0, 0 },
 		{ "byaccount", 'f', &ChatHandler::HandleKillBySessionCommand, "Disconnects the session with account name <s>.", NULL, 0, 0, 0 },
 		{ "byip",      'f', &ChatHandler::HandleKillByIPCommand,      "Disconnects the session with the ip <s>.",       NULL, 0, 0, 0 },
-*/		{ NULL,        '0', NULL,                                     "",                                               NULL, 0, 0, 0 }
+*/
+		{ NULL,        '0', NULL,                                     "",                                               NULL, 0, 0, 0 }
 	};
 	dupe_command_table(kickCommandTable, _kickCommandTable);
 
 	static ChatCommand banCommandTable[] =
 	{
-/*		{ "ip",        'm', &ChatHandler::HandleIPBanCommand,         "Adds an address to the IP ban table: <address> [duration]\nDuration must be a number optionally followed by a character representing the calendar subdivision to use (h>hours, d>days, w>weeks, m>months, y>years, default minutes)\nLack of duration results in a permanent ban.", NULL, 0, 0, 0 },
+/*
+		{ "ip",        'm', &ChatHandler::HandleIPBanCommand,         "Adds an address to the IP ban table: <address> [duration]\nDuration must be a number optionally followed by a character representing the calendar subdivision to use (h>hours, d>days, w>weeks, m>months, y>years, default minutes)\nLack of duration results in a permanent ban.", NULL, 0, 0, 0 },
 		{ "character", 'b', &ChatHandler::HandleBanCharacterCommand,  "Bans character x with or without reason",                                                                                                                                                                                                                                           NULL, 0, 0, 0 },
 		{ "account",   'a', &ChatHandler::HandleAccountBannedCommand, "Ban account. .account ban name timeperiod",                                                                                                                                                                                                                                         NULL, 0, 0, 0 },
-*/		{ NULL,        '0', NULL,                                     "",                                                                                                                                                                                                                                                                                  NULL, 0, 0, 0 }
+*/
+		{ NULL,        '0', NULL,                                     "",                                                                                                                                                                                                                                                                                  NULL, 0, 0, 0 }
 	};
 	dupe_command_table(banCommandTable, _banCommandTable);
 
@@ -620,7 +636,9 @@ void CommandTableStorage::Init()
 		{ "reset",    'z', &ChatHandler::HandleResetInstanceCommand,     "Removes instance ID x from target player.",                         NULL, 0, 0, 0 },
 		{ "resetall", 'm', &ChatHandler::HandleResetAllInstancesCommand, "Removes all instance IDs from target player.",                      NULL, 0, 0, 0 },
 		{ "shutdown", 'z', &ChatHandler::HandleShutdownInstanceCommand,  "Shutdown instance with ID x (default is current instance).",        NULL, 0, 0, 0 },
-/*		{ "delete",   'z', &ChatHandler::HandleDeleteInstanceCommand,    "Deletes instance with ID x (default is current instance).",         NULL, 0, 0, 0 },*/
+/*
+		{ "delete",   'z', &ChatHandler::HandleDeleteInstanceCommand,    "Deletes instance with ID x (default is current instance).",         NULL, 0, 0, 0 },
+*/
 		{ "info",     'm', &ChatHandler::HandleGetInstanceInfoCommand,   "Gets info about instance with ID x (default is current instance).", NULL, 0, 0, 0 },
 		{ "exit",     'm', &ChatHandler::HandleExitInstanceCommand,      "Exits current instance, return to entry point.",                    NULL, 0, 0, 0 },
 		{ NULL,       '0', NULL,                                         "",                                                                  NULL, 0, 0, 0 }
@@ -687,7 +705,9 @@ void CommandTableStorage::Init()
 		{ "unparalyze",      'b', &ChatHandler::HandleUnParalyzeCommand,                    "Unroots/Unparalyzes the target.",                                                                                                         NULL,                     0, 0, 0 },
 		{ "logcomment",      '1', &ChatHandler::HandleGmLogCommentCommand,                  "Adds a comment to the GM log for the admins to read.",                                                                                    NULL,                     0, 0, 0 },
 		{ "bank",    'a', &ChatHandler::HandleShowBankCommand,      "Open your bank from anywhere.", NULL, 0, 0, 0},
-/*		{ "removesickness",  'm', &ChatHandler::HandleRemoveRessurectionSickessAuraCommand, "Removes ressurrection sickness from the target",                                                                                          NULL,                     0, 0, 0 },
+		{ "chatcolor",   'a', &ChatHandler::HandleColorChat,       "SYNTAX: None.\nNOTES: Toggles ranked chat color in chat messages on/off.",  NULL, 0, 0, 0},
+/*
+		{ "removesickness",  'm', &ChatHandler::HandleRemoveRessurectionSickessAuraCommand, "Removes ressurrection sickness from the target",                                                                                          NULL,                     0, 0, 0 },
 		{ "levelup",         'm', &ChatHandler::HandleLevelUpCommand,                       "Levelup x lvls",                                                                                                                          NULL,                     0, 0, 0 },
 		{ "account",         'a', NULL,                                                     "",                                                                                                                                        accountCommandTable,      0, 0, 0 },
 		{ "kill",            'z', &ChatHandler::HandleKillCommand,                          ".kill - Kills selected unit.",                                                                                                            NULL,                     0, 0, 0 },
@@ -1307,5 +1327,24 @@ bool ChatHandler::HandleGetPosCommand(const char* args, WorldSession *m_session)
 bool ChatHandler::HandleShowBankCommand(const char* args, WorldSession *m_session)	//Custom bank command
 {
     m_session->SendShowBank( m_session->GetPlayer()->GetGUID() );
+	return true;
+}
+
+bool ChatHandler::HandleColorChat(const char* args, WorldSession *m_session)
+{	//Toggle for admin chat color. --Hemi
+	Player * plr = m_session->GetPlayer();
+	if(!plr)
+		return false;
+	
+	if(plr->ColoredText)
+	{
+		plr->ColoredText=false;
+		RedSystemMessage(m_session,"Colored chat is now OFF.");
+	}
+	else
+	{
+		plr->ColoredText=true;
+		GreenSystemMessage(m_session,"Colored chat is now ON.");
+	}
 	return true;
 }
