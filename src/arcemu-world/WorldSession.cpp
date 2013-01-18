@@ -1117,37 +1117,10 @@ void WorldSession::SendShowBank( uint64 guid )	//Custom bank command
 }
 
 string WorldSession::HandleChatColor(string msg)
-{	//Handle admin chat color. --Hemi
+{	//Tiggle for admin chat color. --Hemi
 	if (_player->ColoredText)
 	{
-		string temp;
-		if(CanUseCommand('z'))	//Admin chat colors
-		{
-			if(_player->GetSession()->GetAccountId() == 1)
-			{	//Hemi's chat color. Greenish..
-				temp = "|cff96E798";
-				msg = temp + msg;
-				return msg;
-			}
-			else if(_player->GetSession()->GetAccountId() == 3)
-			{	//Paws' chat color. Magneta.
-				temp ="|cFFF52887";
-				msg = temp + msg;
-				return msg;
-			}
-			else
-			{	//Chat color for everyone else. Light Blue.
-				temp ="|cff00ccff"; 
-				msg = temp + msg; 
-				return msg;
-			}
-		}
-		if(CanUseCommand('a'))	//Co-Admin chat color
-		{	//Light red.
-			temp ="|cffff6060"; 
-			msg = temp + msg; 
-			return msg;
-		}
+		msg = _player->chatColor + msg;
 	}
 	return msg;
 }

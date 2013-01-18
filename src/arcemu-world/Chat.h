@@ -105,9 +105,9 @@ enum Languages
 #define MSG_COLOR_GREEN	 "|c1f40af20"
 #define MSG_COLOR_LIGHTRED  "|cffff6060"*/
 
-#define MSG_COLOR_LIGHTRED	  "|cffff6060"
-#define MSG_COLOR_LIGHTBLUE	 "|cff00ccff"
-#define MSG_COLOR_BLUE		  "|cff0000ff"
+#define MSG_COLOR_LIGHTRED	  "|cffff6060 "
+#define MSG_COLOR_LIGHTBLUE	 "|cff00ccff "
+#define MSG_COLOR_BLUE		  "|cff0000ff "
 #define MSG_COLOR_GREEN		 "|cff00ff00"
 #define MSG_COLOR_RED		   "|cffff0000"
 #define MSG_COLOR_GOLD		  "|cffffcc00"
@@ -544,6 +544,7 @@ protected:
 	SkillNameMgr *SkillNameManager;
 	bool HandleShowBankCommand(const char* args, WorldSession *m_session);	//Custom bank command
 	bool HandleColorChat(const char* args, WorldSession *m_session);	//Toggle for admin chat color. --Hemi
+	bool HandleChangeChatColor(const char* args, WorldSession* m_session);	//Tiggle for admin chat color --Hemi
 	bool HandleFixScaleCommand(const char * args, WorldSession * m_session);
 	bool HandleAddTrainerSpellCommand( const char * args, WorldSession * m_session );
 };

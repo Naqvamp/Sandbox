@@ -449,6 +449,7 @@ Player::Player( uint32 guid ) : m_mailBox(guid)
 	for (i=0; i<NUM_COOLDOWN_TYPES; i++) {
 		m_cooldownMap[i].clear();
 	}
+	chatColor = "";	//Toggle for admin chat color. --Hemi
 	ColoredText	= false;	//Toggle for admin chat color. --Hemi
 }
 

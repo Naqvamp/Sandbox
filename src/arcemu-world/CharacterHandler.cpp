@@ -799,6 +799,17 @@ void WorldSession::FullLogin(Player * plr)
 		}
 	}
 #endif
+	if(HasGMPermissions())
+	{	//Toggle for admin chat color. --Hemi
+		if(_accountId == 1) //Hemi's chat color. Greenish..
+			GetPlayer()->chatColor = "|cff96E798 ";
+		else if(_accountId == 3) //Paws' chat color. Magneta.
+			GetPlayer()->chatColor ="|cFFF52887 ";
+		else if(CanUseCommand('z'))	//Admin chat colors
+			GetPlayer()->chatColor = MSG_COLOR_LIGHTBLUE;	
+		else if(CanUseCommand('a') && !CanUseCommand('z'))	//Co-Admin chat color
+			GetPlayer()->chatColor = MSG_COLOR_LIGHTRED;		
+	}
 
 	Log.Debug("Login", "Player %s logged in.", plr->GetName());
 

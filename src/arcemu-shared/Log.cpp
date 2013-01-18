@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "NGLog.h"
 #include <stdarg.h>
+#include <iostream>
 
 string FormatOutputString(const char * Prefix, const char * Description, bool useTimeStamp)
 {
@@ -91,16 +92,17 @@ void oLog::outString( const char * str, ... )
 	va_end(ap);
 	
 	if(m_screenLogLevel >= 0)
-	{
-		printf(buf);
-		putc('\n', stdout);
+	{	//Moved to C++ style console output due to crash. --Hemi
+		cout << buf << endl;
+		//printf(buf);
+		//putc('\n', stdout);
 	}
-	if(m_fileLogLevel >= 0 && m_file)
-	{
-		outTime();
-		fprintf(m_file, buf);
-		putc('\n', m_file);
-	}
+	//if(m_fileLogLevel >= 0 && m_file)
+	//{	//We don't need to log level 0 info to file. --Hemi
+	//	outTime();
+	//	fprintf(m_file, buf);
+	//	putc('\n', m_file);
+	//}
 }
 
 void oLog::outError( const char * err, ... )

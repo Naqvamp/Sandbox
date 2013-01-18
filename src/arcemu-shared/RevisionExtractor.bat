@@ -1,0 +1,2 @@
+RUN RevisionExtractor.exe
+PAUSE

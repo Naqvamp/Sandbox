@@ -273,7 +273,7 @@ void WorldSession::HandleSetTradeItem(WorldPacket & recv_data)
 		if(_player->GetItemInterface()->IsBagSlot(SourceSlot))
 		return;*/
 		
-  // Cebernic: bag trading?
+	// Cebernic: bag trading?
 	//printf("This slot %u\n",TradeSlot);
 	uint32 TradeStatus = TRADE_STATUS_STATE_CHANGED;
 	Player * plr = _player->GetTradeTarget();
@@ -329,9 +329,15 @@ void WorldSession::HandleSetTradeItem(WorldPacket & recv_data)
 		return;
 	}
 
+	if(TradeSlot < 6 && pItem->IsContainer())
+	{	//We don't want or need people trading bags. Period. --Hemi
+		sCheatLog.writefromsession(this, "tried to cheat trade a container item");
+		Disconnect();
+		return;
+	}
+
 	for(uint32 i = 0; i < 8; ++i)
-	{
-		// duping little shits
+	{	// duping little shits
 		if(_player->mTradeItems[i] == pItem || pTarget->mTradeItems[i] == pItem)
 		{
 			sCheatLog.writefromsession(this, "tried to dupe an item through trade");
@@ -341,8 +347,7 @@ void WorldSession::HandleSetTradeItem(WorldPacket & recv_data)
 	}
 
 	if(SourceSlot >= INVENTORY_SLOT_BAG_START && SourceSlot < INVENTORY_SLOT_BAG_END)
-	{
-		//More duping woohoo
+	{	//More duping woohoo
 		sCheatLog.writefromsession(this, "tried to cheat trade a soulbound item");
 		Disconnect();
 	}

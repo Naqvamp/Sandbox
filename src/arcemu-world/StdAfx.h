@@ -142,7 +142,6 @@
 #include "Stats.h"
 #include "WorldCreator.h"
 
-
 #include "ObjectMgr.h"
 
 #include "CThreads.h"

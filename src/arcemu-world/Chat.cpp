@@ -300,6 +300,7 @@ void CommandTableStorage::Init()
 		{ "testindoor",          'd', &ChatHandler::HandleCollisionTestIndoor,     "tests indoor",                                                                                                      NULL, 0, 0, 0 },
 		{ "getheight",           'd', &ChatHandler::HandleCollisionGetHeight,      "Gets height",                                                                                                       NULL, 0, 0, 0 },
 		{ "getpos",              'd', &ChatHandler::HandleGetPosCommand,           "",                                                                                                                  NULL, 0, 0, 0 },
+		{ "changecolor",   		 'o', &ChatHandler::HandleChangeChatColor,         "Changes chat color",                                                            									NULL, 0, 0, 0 },
 		{ NULL,                  '0', NULL,                                        "",                                                                                                                  NULL, 0, 0, 0 }
 	};
 	dupe_command_table(debugCommandTable, _debugCommandTable);
@@ -1345,6 +1346,35 @@ bool ChatHandler::HandleColorChat(const char* args, WorldSession *m_session)
 	{
 		plr->ColoredText=true;
 		GreenSystemMessage(m_session,"Colored chat is now ON.");
+	}
+	return true;
+}
+
+bool ChatHandler::HandleChangeChatColor(const char* args, WorldSession* m_session)
+{	//Toggle for admin chat color. --Hemi
+	Player * plr = m_session->GetPlayer();
+	
+	if(!plr)
+		return false;
+
+	if (args == NULL)
+		return false;
+
+	if (strlen(args) > 6)
+	{
+		RedSystemMessage(m_session, "You have entered more than six letters or numbers. Please try again.");
+		return false;
+	}
+	if(plr->ColoredText)
+	{
+		string tmp = "|cff";
+		tmp += string(args);
+		plr->chatColor = tmp;
+		GreenSystemMessage(m_session, "Your chat color string is now '%s'. Be careful this may crash the realm if not properly formatted.", args);
+	}
+	else
+	{
+		RedSystemMessage(m_session, "You must have ChatColor enabled to use this command.");
 	}
 	return true;
 }

@@ -49,7 +49,7 @@ int luaGameObject_GossipSendPOI(lua_State * L, GameObject * ptr);
 //GetStuff//
 ////////////
 
-;int luaUnit_GetPlayerRace(lua_State * L, Unit * ptr);
+int luaUnit_GetPlayerRace(lua_State * L, Unit * ptr);
 int luaUnit_GetCurrentSpellId(lua_State * L, Unit * ptr);
 int luaUnit_GetStanding(lua_State * L, Unit * ptr);
 int luaUnit_GetMainTank(lua_State * L, Unit * ptr);

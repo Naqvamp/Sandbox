@@ -281,26 +281,25 @@ bool HandleUnbanAccountCommand(BaseConsole * pConsole, int argc, const char * ar
 }
 
 bool HandleCreateAccountCommand(BaseConsole * pConsole, int argc, const char * argv[])
-{
+{	//Enabled account creation from console. --Hemi
 	if(argc < 5)
 		return false;
 
 	const char * username = argv[1];
 	const char * password = argv[2];
 	const char * email = argv[3];
-//	uint32 flags = atoi(argv[4]);
+	uint32 flags = atoi(argv[4]);
 
 	if(strlen(username) == 0 || strlen(password) == 0 || strlen(email) == 0)
 		return false;
 
-	/*string susername = CharacterDatabase.EscapeString(string(username));
+	string susername = CharacterDatabase.EscapeString(string(username));
 	string spassword = CharacterDatabase.EscapeString(string(password));
 	string semail = CharacterDatabase.EscapeString(string(email));
-
-	sLogonCommHandler.LogonDatabaseSQLExecute("INSERT INTO accounts (login, password, email, flags) VALUES('%s','%s','%s',%u)",susername.c_str(), spassword.c_str(),
-		semail.c_str(), flags);
-
-	pConsole->Write("Account created.\r\n");*/
+	
+	//sLogonCommHandler.LogonDatabaseSQLExecute("INSERT INTO accounts (login, password, email, flags) VALUES('%s','%s','%s',%u)",susername.c_str(), spassword.c_str(),semail.c_str(), flags);
+	CharacterDatabase.Query("INSERT INTO accounts (login, password, email, flags) VALUES('%s','%s','%s',%u)",susername.c_str(), spassword.c_str(),semail.c_str(), flags);
+	pConsole->Write("Account created.\r\n");
 	return true;
 }
 
