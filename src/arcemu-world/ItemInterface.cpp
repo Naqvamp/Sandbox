@@ -293,7 +293,8 @@ AddItemResult ItemInterface::m_AddItem(Item *item, int8 ContainerSlot, int8 slot
 				}
 			}
 			else
-			{
+			{	//wpe dupefix ..we don't want it reappearing on the next relog now do we?
+				item->DeleteFromDB();	//Ported from Arcemu 3.3.5. --Hemi
 				return ADD_ITEM_RESULT_ERROR;
 			}
 		}

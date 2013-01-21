@@ -1381,12 +1381,19 @@ void WorldSession::HandleGuildBankDepositItem(WorldPacket & recv_data)
 			{
 				_player->GetItemInterface()->BuildInventoryChangeError(NULL , pDestItem, error);
 				return;
-			}*/
+			}
+*/
+			if(source_bagslot == 0xff && source_slot < INVENTORY_SLOT_ITEM_START && pDestItem != NULL)
+			{	//Ported from Arcemu 3.3.5. this should prevent the WPE equip items anywhere hack. --Hemi
+				sCheatLog.writefromsession(this, "Tried to equip an item from the guild bank (WPE HACK)");
+				SystemMessage("You don't have permission to do that.");
+				return;
+			}
+			
 			if(pMember->pRank->iTabPermissions[dest_bank].iStacksPerDay > 0)
 			{
 				if(pMember->CalculateAllowedItemWithdraws(dest_bank) == 0)
-				{
-					// a "no permissions" notice would probably be better here
+				{	// a "no permissions" notice would probably be better here
 					SystemMessage("You have withdrawn the maximum amount for today.");
 					return;
 				}

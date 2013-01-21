@@ -203,16 +203,21 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvPacket)
 		}
 	}
 	
+	//if(pSpell == NULL)
+	//	return;
 	if(pSpell == NULL)
+	{	//Disconnecting the player. --Ported from Arcemu 3.3.5. --Hemi
+		sCheatLog.writefromsession(this, "Player %s tried learning none-obtainable spell - Possibly using WPE", _player->GetName());
+		this->Disconnect();
 		return;
+	}
 
 	if(TrainerGetSpellStatus(pSpell) > 0) return;
 	
 	_player->ModUnsigned32Value(PLAYER_FIELD_COINAGE, -(int32)pSpell->Cost);
 
 	if( pSpell->pCastSpell)
-	{
-		// Cast teaching spell on player
+	{	//Cast teaching spell on player
 		pCreature->CastSpell(_player, pSpell->pCastSpell, true);
 	}
 

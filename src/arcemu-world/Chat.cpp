@@ -483,6 +483,7 @@ void CommandTableStorage::Init()
 		{ "add",        'q', &ChatHandler::HandleRecallAddCommand,        "Add recall location",       NULL, 0, 0, 0 },
 		{ "del",        'q', &ChatHandler::HandleRecallDelCommand,        "Remove a recall location",  NULL, 0, 0, 0 },
 		{ "portplayer", 'm', &ChatHandler::HandleRecallPortPlayerCommand, "recall ports player",       NULL, 0, 0, 0 },
+		{ "portus",		'm', &ChatHandler::HandleRecallPortUsCommand,	  "Ports you and the selected player to recalled location",       NULL, 0, 0, 0 },
 		{ "gotrig",     'v', &ChatHandler::HandleTriggerCommand,          "Warps to areatrigger <id>", NULL, 0, 0, 0 },
 		{ NULL,         '0', NULL,                                        "",                          NULL, 0, 0, 0 }
 	};
@@ -1360,9 +1361,14 @@ bool ChatHandler::HandleChangeChatColor(const char* args, WorldSession* m_sessio
 	if (args == NULL)
 		return false;
 
+	if (strlen(args) < 6)
+	{	//Check if less than 6 characters were entered.
+		RedSystemMessage(m_session, "You have entered less than six hexadecimal letters or numbers. Please try again.");
+		return false;
+	}
 	if (strlen(args) > 6)
-	{
-		RedSystemMessage(m_session, "You have entered more than six letters or numbers. Please try again.");
+	{	//Check if more than 6 characters were entered.
+		RedSystemMessage(m_session, "You have entered more than six hexadecimal letters or numbers. Please try again.");
 		return false;
 	}
 	if(plr->ColoredText)

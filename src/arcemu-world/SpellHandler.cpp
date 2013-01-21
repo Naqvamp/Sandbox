@@ -43,10 +43,17 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 	if(!itemProto)
 		return;
 
-  if ( tmpItem->IsSoulbound() ){ // SouldBind item will be used after SouldBind()
-    if(sScriptMgr.CallScriptedItem(tmpItem,_player))
-		  return;
-  }
+	if ( tmpItem->IsSoulbound() )
+	{	// SouldBind item will be used after SouldBind()
+		if(sScriptMgr.CallScriptedItem(tmpItem,_player))
+			return;
+	}
+
+	if(itemProto->InventoryType != 0 && !_player->GetItemInterface()->IsEquipped(itemProto->ItemId))
+	{	//Items must be equipped before using them if they are equippable. --Hemi
+		SystemMessage("You must equip that item to use it.");
+		return;
+	}
 
 	if(_player->getDeathState()==CORPSE)
 		return;
@@ -55,8 +62,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 		tmpItem->SoulBind();
 
 	if(itemProto->QuestId)
-	{
-		// Item Starter
+	{	//Item Starter
 		Quest *qst = QuestStorage.LookupEntry(itemProto->QuestId);
 		if(!qst) 
 			return;

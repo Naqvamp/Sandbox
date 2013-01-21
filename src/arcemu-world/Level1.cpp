@@ -355,30 +355,39 @@ bool ChatHandler::HandleAppearCommand(const char* args, WorldSession *m_session)
 
 	Player *chr = objmgr.GetPlayer(args, false);
 	if (chr)
-	{
-		char buf[256];
-		if( chr->IsBeingTeleported() ) {
-			snprintf((char*)buf,256, "%s is already being teleported.", chr->GetName());
+	{	
+		if(!chr->GetSession()->CanUseCommand('a') || m_session->GetPlayer()->GetSession()->CanUseCommand('a'))
+		{	//An attempt to disallow non A or AZ GM's from appearing to an A or AZ GM. --Hemi
+			char buf[256];
+			if( chr->IsBeingTeleported() ) 
+			{
+				snprintf((char*)buf,256, "%s is already being teleported.", chr->GetName());
+				SystemMessage(m_session, buf);
+				return true;
+			}
+			snprintf((char*)buf,256, "Appearing at %s's location.", chr->GetName());  // -- europa
+			SystemMessage(m_session, buf);
+			if(!m_session->GetPlayer()->m_isGmInvisible)
+			{
+				char buf0[256];
+				snprintf((char*)buf0,256, "%s is appearing to your location.", m_session->GetPlayer()->GetName());
+				SystemMessageToPlr(chr, buf0);
+			}
+			//m_session->GetPlayer()->SafeTeleport(chr->GetMapId(), chr->GetInstanceID(), chr->GetPosition());
+			//If the GM is on the same map as the player, use the normal safeteleport method
+			if ( m_session->GetPlayer()->GetMapId() == chr->GetMapId() && m_session->GetPlayer()->GetInstanceID() == chr->GetInstanceID() )
+				m_session->GetPlayer()->SafeTeleport(chr->GetMapId(),chr->GetInstanceID(),chr->GetPosition());
+			else
+				m_session->GetPlayer()->SafeTeleport(chr->GetMapMgr(), chr->GetPosition());
+			//The player and GM are not on the same map. We use this method so we can port to BG's (Above method doesn't support them)
+		}
+		else
+		{
+			char buf[256];
+			snprintf((char*)buf,256, "Player (%s) is an Administrator please ask before attempting to appear!", args);
 			SystemMessage(m_session, buf);
 			return true;
 		}
-		snprintf((char*)buf,256, "Appearing at %s's location.", chr->GetName());  // -- europa
-		SystemMessage(m_session, buf);
-
-		if(!m_session->GetPlayer()->m_isGmInvisible)
-		{
-			char buf0[256];
-			snprintf((char*)buf0,256, "%s is appearing to your location.", m_session->GetPlayer()->GetName());
-			SystemMessageToPlr(chr, buf0);
-		}
-
-		//m_session->GetPlayer()->SafeTeleport(chr->GetMapId(), chr->GetInstanceID(), chr->GetPosition());
-		//If the GM is on the same map as the player, use the normal safeteleport method
-		if ( m_session->GetPlayer()->GetMapId() == chr->GetMapId() && m_session->GetPlayer()->GetInstanceID() == chr->GetInstanceID() )
-			m_session->GetPlayer()->SafeTeleport(chr->GetMapId(),chr->GetInstanceID(),chr->GetPosition());
-		else
-			m_session->GetPlayer()->SafeTeleport(chr->GetMapMgr(), chr->GetPosition());
-		//The player and GM are not on the same map. We use this method so we can port to BG's (Above method doesn't support them)
 	}
 	else
 	{
@@ -386,7 +395,6 @@ bool ChatHandler::HandleAppearCommand(const char* args, WorldSession *m_session)
 		snprintf((char*)buf,256, "Player (%s) does not exist or is not logged in.", args);
 		SystemMessage(m_session, buf);
 	}
-
 	return true;
 }
 

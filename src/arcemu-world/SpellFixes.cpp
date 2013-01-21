@@ -311,6 +311,11 @@ void Apply112SpellFixes()
 	if(sp != NULL)
 		sp->procChance = 9;
 
+	// Spell 16924 Proc Chance (Firestone Passive)
+	sp = dbcSpell.LookupEntryForced(17949);	//firestone proc fix. --Hemi
+	if(sp != NULL)
+		sp->procChance = 101;
+		
 	// Spell 18797 Proc Chance (Flurry Axe )
 	sp = dbcSpell.LookupEntryForced(18797);
 	if(sp != NULL)

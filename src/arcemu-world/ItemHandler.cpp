@@ -34,8 +34,7 @@ void WorldSession::HandleSplitOpcode(WorldPacket& recv_data)
 		return;
 
 	if( count==0 || count >= 127 || (SrcInvSlot <= 0 && SrcSlot < INVENTORY_SLOT_ITEM_START) || (DstInvSlot <= 0 && DstSlot < INVENTORY_SLOT_ITEM_START))
-	{
-		/* exploit fix */
+	{	//Exploit fix. Could possibly increase the stack split amount here. --Hemi
 		return;
 	}
 

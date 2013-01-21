@@ -334,10 +334,13 @@ Player::Player( uint32 guid ) : m_mailBox(guid)
 
 	m_comboTarget = 0;
 	m_comboPoints = 0;
-
+/*
 	SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
 	SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0f);
-
+*/	//Scale the attack power to something similar to UW? --Hemi
+	SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 15.0f);
+	SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 20.0f);
+	
 	UpdateLastSpeeds();
 
 	m_resist_critical[0]=m_resist_critical[1]=0;
@@ -4876,17 +4879,17 @@ void Player::UpdateChances()
 	// dodge
 	tmp = GetDodgeChance();
 	tmp += defence_contribution;
-	tmp = min( max( tmp, 0.0f ), 95.0f );
+	tmp = min( max( tmp, 65.0f ), 80.0f );
 	SetFloatValue( PLAYER_DODGE_PERCENTAGE, tmp );
-
+	//Min 65% - Max 80% --Hemi
 	// block
 	Item* it = this->GetItemInterface()->GetInventoryItem( EQUIPMENT_SLOT_OFFHAND );
 	if( it != NULL && it->GetProto()->InventoryType == INVTYPE_SHIELD )
 	{
 		tmp = GetBlockChance();
 		tmp += defence_contribution;
-		tmp = min( max( tmp, 0.0f ), 95.0f );
-	}
+		tmp = min( max( tmp, 5.0f ), 25.0f );
+	}	//Min 5% - Max 25% --Hemi
 	else
 		tmp = 0.0f;
 
@@ -4898,8 +4901,8 @@ void Player::UpdateChances()
 	{
 		tmp = GetParryChance();
 		tmp += defence_contribution;
-		tmp = min( max( tmp, 0.0f ), 95.0f );
-	}
+		tmp = min( max( tmp, 10.0f ), 15.0f );
+	}	//Min 10% - Max 15% --Hemi
 	else
 		tmp = 0.0f;
 
@@ -9744,13 +9747,13 @@ void Player::_AddSkillLine(uint32 SkillLine, uint32 Curr_sk, uint32 Max_sk)
 		return;
 
 	// force to be within limits
-//#if PLAYER_LEVEL_CAP==255
+#if PLAYER_LEVEL_CAP==255
 	Curr_sk = ( Curr_sk > 1275 ? 1275 : ( Curr_sk <1 ? 1 : Curr_sk ) );
 	Max_sk = ( Max_sk > 1275 ? 1275 : Max_sk );
-//#else
-//	Curr_sk = ( Curr_sk > 375 ? 375 : ( Curr_sk <1 ? 1 : Curr_sk ) );
-//	Max_sk = ( Max_sk > 375 ? 375 : Max_sk );
-//#endif
+#else
+	Curr_sk = ( Curr_sk > 375 ? 375 : ( Curr_sk <1 ? 1 : Curr_sk ) );
+	Max_sk = ( Max_sk > 375 ? 375 : Max_sk );
+#endif
 	ItemProf * prof;
 	SkillMap::iterator itr = m_skills.find(SkillLine);
 	if(itr != m_skills.end())
@@ -9910,15 +9913,15 @@ void Player::_UpdateMaxSkillCounts()
 		}
 
 		// force to be within limits
-//#if PLAYER_LEVEL_CAP==255
+#if PLAYER_LEVEL_CAP==255
 		if (new_max > 1275)
 			new_max = 1275;
-//#else
-//		if (new_max > 375)
-//			new_max = 375;
-//#endif
-//		if (new_max < 1)
-//			new_max = 1;
+#else
+		if (new_max > 375)
+			new_max = 375;
+#endif
+		if (new_max < 1)
+			new_max = 1;
 
 	
 		if(itr->second.MaximumValue != new_max)
@@ -10077,11 +10080,11 @@ void Player::_AdvanceAllSkills(uint32 count)
 void Player::_ModifySkillMaximum(uint32 SkillLine, uint32 NewMax)
 {
 	// force to be within limits
-//#if PLAYER_LEVEL_CAP==255
+#if PLAYER_LEVEL_CAP==255
 	NewMax = ( NewMax > 1275 ? 1275 : NewMax );
-//#else
-//	NewMax = ( NewMax > 375 ? 375 : NewMax );
-//#endif
+#else
+	NewMax = ( NewMax > 375 ? 375 : NewMax );
+#endif
 
 	SkillMap::iterator itr = m_skills.find(SkillLine);
 	if(itr == m_skills.end())
