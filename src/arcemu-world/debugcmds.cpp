@@ -572,7 +572,7 @@ bool ChatHandler::HandleDebugLandWalk(const char* args, WorldSession *m_session)
 bool ChatHandler::HandleDebugWaterWalk(const char* args, WorldSession *m_session)
 {
 	Player *chr = getSelectedChar(m_session);
-	char buf[256];
+	//char buf[256];
 
 	if (chr == NULL) // Ignatich: what should NOT happen but just in case...
 	{
@@ -580,8 +580,9 @@ bool ChatHandler::HandleDebugWaterWalk(const char* args, WorldSession *m_session
 		return false;
 	}
 	chr->SetMovement(MOVE_WATER_WALK, 4);
-	snprintf((char*)buf,256, "Water Walk Test Ran.");
-	SystemMessage(m_session,  buf);
+	BlueSystemMessage(m_session, "Waterwalking enabled.", args);
+	//snprintf((char*)buf,256, "Water Walk Test Ran.");
+	//SystemMessage(m_session,  buf);
 	return true;
 }
 

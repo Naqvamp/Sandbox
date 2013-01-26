@@ -341,6 +341,12 @@ void Apply112SpellFixes()
 	if(sp != NULL)
 		sp->procChance = 5;
 
+	sp = dbcSpell.LookupEntryForced(36839);
+	if(sp != NULL)
+	{	//Impairing Poison (4.5 second cooldown) --Hemi
+		sp->RecoveryTime = 4500;
+	}
+		
 	// Spell 19228 Proc Chance (Improved Wing Clip Rank 1)
 	sp = dbcSpell.LookupEntryForced(19228);
 	if(sp != NULL)
@@ -5969,9 +5975,14 @@ void ApplyNormalFixes()
 			sp->procChance = 7;
 		}
 
-		//all Drums 
+		sp = dbcSpell.LookupEntryForced( 13754 );
+		if( sp != NULL )	//Improved Kick - Rank1 - Silence --Hemi
+			sp->procFlags = PROC_NULL;
+		sp = dbcSpell.LookupEntryForced( 13867 );
+		if( sp != NULL )	//Improved Kick - Rank2 - Silence --Hemi
+			sp->procFlags = PROC_NULL;
 		sp = dbcSpell.LookupEntryForced( 35474 );
-		if( sp != NULL )
+		if( sp != NULL )	//all Drums 
 			sp->RequiredShapeShift = 0;
 		sp = dbcSpell.LookupEntryForced( 35475 );
 		if( sp != NULL )

@@ -150,6 +150,12 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 		GetPlayer()->GetItemInterface()->BuildInventoryChangeError(NULL, NULL, INV_ERR_ITEMS_CANT_BE_SWAPPED);
 		return;
 	}
+	
+	if(SrcSlot > MAX_INVENTORY_SLOT || DstSlot > MAX_INVENTORY_SLOT)
+	{	//Item duplication exploit fix. --Hemi
+		Disconnect();	//We want to disconnect these scum! --Hemi
+		return;
+	}
 
 	if( ( DstInvSlot <= 0 && DstSlot < 0 ) || DstInvSlot < -1 )
 		return;
@@ -335,22 +341,32 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 
 		if(SrcItem)
 		{
-			AddItemResult result =_player->GetItemInterface()->SafeAddItem(SrcItem,DstInvSlot,DstSlot);
-			if(!result)
-			{
-				printf("HandleSwapItem: Error while adding item to dstslot\n");
-				SrcItem->DeleteMe();
-			}
+			//if(DstSlot < MAX_INVENTORY_SLOT)
+			//{	//Ghetto dupe fix. Hopefully temporary. --Hemi
+				AddItemResult result =_player->GetItemInterface()->SafeAddItem(SrcItem,DstInvSlot,DstSlot);
+				if(!result)
+				{
+					printf("HandleSwapItem: Error while adding item to dstslot\n");
+					SrcItem->DeleteFromDB();
+					SrcItem->DeleteMe();
+					SrcItem = NULL;
+				}
+			//}
 		}
 
 		if(DstItem)
 		{
-			AddItemResult result = _player->GetItemInterface()->SafeAddItem(DstItem,SrcInvSlot,SrcSlot);
-			if(!result)
-			{
-				printf("HandleSwapItem: Error while adding item to srcslot\n");
-				DstItem->DeleteMe();
-			}
+			//if(SrcSlot < MAX_INVENTORY_SLOT)
+			//{	//Ghetto dupe fix. Hopefully temporary. --Hemi
+				AddItemResult result = _player->GetItemInterface()->SafeAddItem(DstItem,SrcInvSlot,SrcSlot);
+				if(!result)
+				{
+					printf("HandleSwapItem: Error while adding item to srcslot\n");
+					DstItem->DeleteFromDB();
+					DstItem->DeleteMe();
+					DstItem = NULL;
+				}
+			//}
 		}
 	}
 }
@@ -378,7 +394,13 @@ void WorldSession::HandleSwapInvItemOpcode( WorldPacket & recv_data )
 
 	Item * dstitem = _player->GetItemInterface()->GetInventoryItem(dstslot);
 	Item * srcitem = _player->GetItemInterface()->GetInventoryItem(srcslot);
-	
+
+	if(dstslot > 66 && !srcitem->IsContainer())
+	{	//Item duplication exploit fix. --Hemi
+		Disconnect();	//We want to disconnect these scum! --Hemi
+		return;
+	}
+
 	// allow weapon switching in combat
 	bool skip_combat = false;
 	if( srcslot < EQUIPMENT_SLOT_END || dstslot < EQUIPMENT_SLOT_END )	  // We're doing an equip swap.

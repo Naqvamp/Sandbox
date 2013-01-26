@@ -334,12 +334,8 @@ Player::Player( uint32 guid ) : m_mailBox(guid)
 
 	m_comboTarget = 0;
 	m_comboPoints = 0;
-/*
 	SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
 	SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0f);
-*/	//Scale the attack power to something similar to UW? --Hemi
-	SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 15.0f);
-	SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 20.0f);
 	
 	UpdateLastSpeeds();
 
@@ -4879,17 +4875,17 @@ void Player::UpdateChances()
 	// dodge
 	tmp = GetDodgeChance();
 	tmp += defence_contribution;
-	tmp = min( max( tmp, 65.0f ), 80.0f );
+	tmp = min(max(tmp, 0.0f), 75.0f);	//Min 0% - Max 75% --Hemi
 	SetFloatValue( PLAYER_DODGE_PERCENTAGE, tmp );
-	//Min 65% - Max 80% --Hemi
+
 	// block
 	Item* it = this->GetItemInterface()->GetInventoryItem( EQUIPMENT_SLOT_OFFHAND );
 	if( it != NULL && it->GetProto()->InventoryType == INVTYPE_SHIELD )
 	{
 		tmp = GetBlockChance();
 		tmp += defence_contribution;
-		tmp = min( max( tmp, 5.0f ), 25.0f );
-	}	//Min 5% - Max 25% --Hemi
+		tmp = min(max(tmp, 0.0f), 35.0f);	//Min 0% - Max 35% --Hemi
+	}
 	else
 		tmp = 0.0f;
 
@@ -4901,8 +4897,8 @@ void Player::UpdateChances()
 	{
 		tmp = GetParryChance();
 		tmp += defence_contribution;
-		tmp = min( max( tmp, 10.0f ), 15.0f );
-	}	//Min 10% - Max 15% --Hemi
+		tmp = min( max( tmp, 10.0f ), 15.0f );	//Min 5% - Max 15% --Hemi
+	}
 	else
 		tmp = 0.0f;
 
@@ -5012,7 +5008,9 @@ void Player::UpdateAttackSpeed()
 	{
 		speed = weap->GetProto()->Delay;
 		SetUInt32Value( UNIT_FIELD_RANGEDATTACKTIME,
-			( uint32 )( (float) speed / ( m_attack_speed[ MOD_RANGED ] * ( 1.0f + CalcRating( PLAYER_RATING_MODIFIER_RANGED_HASTE ) / 100.0f ) ) ) );
+			//( uint32 )( (float) speed / ( m_attack_speed[ MOD_RANGED ] * ( 1.0f + CalcRating( PLAYER_RATING_MODIFIER_RANGED_HASTE ) / 100.0f ) ) ) );
+			( uint32 )( (float) speed / ( m_attack_speed[ MOD_RANGED ] * ( 1.0f + CalcRating( PLAYER_RATING_MODIFIER_RANGED_HASTE ) / 16.0f ) ) ) );
+			//Normalising ranged attack speed to something similar to UW. --Hemi
 	}
 }
 
@@ -5026,14 +5024,47 @@ void Player::UpdateStats()
 	int32 RAP = 0;
 	int32 hpdelta = 128;
 	int32 manadelta = 128;
-
 	uint32 str = GetUInt32Value(UNIT_FIELD_STAT0);
 	uint32 agi = GetUInt32Value(UNIT_FIELD_STAT1);
+	uint32 intel = GetUInt32Value(UNIT_FIELD_STAT3);
+	uint32 spi = GetUInt32Value(UNIT_FIELD_STAT4);
 	uint32 lev = getLevel();
+	uint32 cl = getClass(); 
 
-	// Attack power
-	uint32 cl = getClass();   
+	// Attack power  
 	switch (cl)
+	{	//Ported UW AttackPower ratings. Normalises class AttackPower. --Hemi
+	case DRUID:
+		AP = str * 2 - 20;	
+		
+		if( GetShapeShift() == FORM_CAT )
+			AP += str * 10 + agi + lev * 600;
+
+		if( GetShapeShift() == FORM_BEAR || GetShapeShift() == FORM_DIREBEAR || GetShapeShift() == FORM_MOONKIN )
+			AP += lev * 450;
+	break;
+	case ROGUE:
+		AP = lev * 900 + str * 10 + agi - 20;
+		RAP = lev + agi - 10;
+	break;
+	case HUNTER:
+		AP = lev * 800 + str * 10 + agi - 20;
+		RAP = lev * 1000 + str + agi * 4 + intel * 4;
+	break;
+	case SHAMAN:
+		AP = lev * 800 + str * 10 + intel + spi;
+	break;
+	case PALADIN:
+		AP = lev * 800 + str * 10 + agi - 20;
+	break;
+	case WARRIOR:
+		AP = lev * 500 + str * 10 + agi;
+		RAP = lev + agi - 20;
+	break;
+	default://mage,priest,warlock
+		AP = str - 10;
+	}
+/*	switch (cl)
 	{
 	case DRUID:
         //(Strength x 2) - 20           
@@ -5104,7 +5135,7 @@ void Player::UpdateStats()
 	default:    //mage,priest,warlock
 		AP = agi - 10;
 	}
-
+*/
 	/* modifiers */
 	RAP += int32(float(float(m_rap_mod_pct) * float(float(m_uint32Values[UNIT_FIELD_STAT3]) / 100.0f)));
 
@@ -6122,16 +6153,16 @@ void Player::EventRepeatSpell()
 	}
 
 	m_AutoShotDuration = m_uint32Values[UNIT_FIELD_RANGEDATTACKTIME];
-
+/*
 	if( m_isMoving )
-	{
+	{	//We want to allow hunters to run and shoot at the same time. --Hemi
 		//sLog.outDebug( "HUNTER AUTOSHOT 2) %i, %i", m_AutoShotAttackTimer, m_AutoShotDuration );
 		//m_AutoShotAttackTimer = m_AutoShotDuration;//avoid flooding client with error mesages
 		//sLog.outDebug( "Can't cast Autoshot: You're moving! (Timer: %u)" , m_AutoShotAttackTimer );
 		m_AutoShotAttackTimer = 100; // shoot when we can
 		return;
 	}
-
+*/
 	int32 f = this->CanShootRangedWeapon( m_AutoShotSpell->Id, target, true );
 
 	if( f != 0 )
@@ -6141,10 +6172,12 @@ void Player::EventRepeatSpell()
 			m_AutoShotAttackTimer = 0; 
 			m_onAutoShot=false;
 		}
+/*
 		else if( m_isMoving )
-		{
+		{	//We want to allow hunters to run and shoot at the same time. --Hemi
 			m_AutoShotAttackTimer = 100;
 		}
+*/
 		else
 		{
 			m_AutoShotAttackTimer = m_AutoShotDuration;//avoid flooding client with error mesages
@@ -6411,7 +6444,6 @@ void Player::SendInitialLogonPackets()
 	// cebernic for speedhack bug
 	m_lastRunSpeed = 0;
 	UpdateSpeed();
-	sLog.outString("WORLD: Sent initial logon packets for %s.", GetName());
 	sLog.outDetail("WORLD: Sent initial logon packets for %s.", GetName());
 }
 
@@ -8004,8 +8036,22 @@ void Player::EndDuel(uint8 WinCondition)
 	// removing auras that kills players after if low HP
 	/*RemoveNegativeAuras(); NOT NEEDED. External targets can always gank both duelers with DoTs. :D
 	DuelingWith->RemoveNegativeAuras();*/
-
 	//Stop Players attacking so they don't kill the other player
+	
+	for(uint32 x = MAX_NEGATIVE_AURAS_EXTEDED_START; x < MAX_REMOVABLE_AURAS_END; x++)
+	{	//Remove Negative(Debuff) Auras after a duel ends. --Hemi
+		if(DuelingWith->m_auras[x])
+		{
+			if(DuelingWith->m_auras[x]->WasCastInDuel())
+				DuelingWith->m_auras[x]->Remove();
+		}
+		if(m_auras[x])
+		{
+			if(m_auras[x]->WasCastInDuel())
+				m_auras[x]->Remove();
+		}
+	}
+	
 	m_session->OutPacket( SMSG_CANCEL_COMBAT );
 	DuelingWith->m_session->OutPacket( SMSG_CANCEL_COMBAT );
 
@@ -8989,11 +9035,11 @@ void Player::ModifyBonuses( uint32 type, int32 val, bool apply )
 			}break;
 		case RANGED_HIT_AVOIDANCE_RATING:
 			{
-
+				
 			}break;
 		case SPELL_HIT_AVOIDANCE_RATING:
 			{
-
+				
 			}break;
 		case MELEE_CRITICAL_AVOIDANCE_RATING:
 			{
@@ -9023,13 +9069,13 @@ void Player::ModifyBonuses( uint32 type, int32 val, bool apply )
 			{
 				ModUnsigned32Value( PLAYER_RATING_MODIFIER_MELEE_HIT, val );//melee
 				ModUnsigned32Value( PLAYER_RATING_MODIFIER_RANGED_HIT, val );//ranged
-				// maybe should do spell here? (7)
+				ModUnsigned32Value( PLAYER_RATING_MODIFIER_SPELL_HIT, val );//spell
 			}break;
 		case CRITICAL_STRIKE_RATING:
 			{
 				ModUnsigned32Value( PLAYER_RATING_MODIFIER_MELEE_CRIT, val );//melee
 				ModUnsigned32Value( PLAYER_RATING_MODIFIER_RANGED_CRIT, val );//ranged
-				// maybe should do spell here? (10)
+				ModUnsigned32Value( PLAYER_RATING_MODIFIER_SPELL_CRIT, val ); //spell
 			}break;
 		case HIT_AVOIDANCE_RATING:// this is guessed based on layout of other fields
 			{
@@ -9054,7 +9100,7 @@ void Player::ModifyBonuses( uint32 type, int32 val, bool apply )
 			{
 				ModUnsigned32Value( PLAYER_RATING_MODIFIER_MELEE_HASTE, val );//melee
 				ModUnsigned32Value( PLAYER_RATING_MODIFIER_RANGED_HASTE, val );//ranged
-				// maybe should do spell here? (19)
+				ModUnsigned32Value( PLAYER_RATING_MODIFIER_SPELL_HASTE, val ); // Spell
 			}break;
 		}
 }

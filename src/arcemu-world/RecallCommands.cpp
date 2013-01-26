@@ -246,7 +246,7 @@ bool ChatHandler::HandleRecallPortPlayerCommand(const char* args, WorldSession *
 		float o = fields[6].GetFloat();
 
 		if (strnicmp((char*)location,locname,strlen(args))==0)
-		{	 //Added Orientation and a rank/invis check for a "ported to" message. --Hemi
+		{	//Added Orientation and a rank/invis check for a "ported to" message. --Hemi
 			sGMLog.writefromsession( m_session, "ported %s to %s ( Map: %u, X: %f, Y: %f, Z: %f, O: %f )", plr->GetName(), locname, locmap, x, y, z, o );
 			if(plr->GetSession() && (plr->GetSession()->CanUseCommand('a') || !m_session->GetPlayer()->m_isGmInvisible))
 				plr->GetSession()->SystemMessage("%s teleported you to location %s!", m_session->GetPlayer()->GetName(), locname);

@@ -71,6 +71,10 @@ ChatCommand * CommandTableStorage::GetSubCommandTable(const char * name)
 		return _instanceCommandTable;
 	else if(!strcmp(name, "arena"))
 		return _arenaCommandTable;
+	else if(!strcmp(name, "learn"))	//Separated learn commands. Will now be .learn all/spell/talents/skill --Hemi
+		return _learnCommandTable;
+	else if(!strcmp(name, "unlearn"))	//Separated unlearn commands. Will now be .unlearn all/spell/talents/skills --Hemi
+		return _unlearnCommandTable;
 /*
 	else if(!strcmp(name, "account"))
 		return _accountCommandTable;
@@ -215,6 +219,8 @@ void CommandTableStorage::Dealloc()
 	free( _unbanCommandTable );
 	free( _instanceCommandTable );
 	free( _arenaCommandTable );
+	free( _learnCommandTable );	//Learn command table. --Hemi
+	free( _unlearnCommandTable ); //Unlearn command table. --Hemi
 	free( _commandTable );
 }
 
@@ -434,8 +440,9 @@ void CommandTableStorage::Init()
 		{ "fly",         'm', &ChatHandler::HandleFlyCommand,              "Sets fly mode",                                   NULL, 0, 0, 0 },
 		{ "explore",     'm', &ChatHandler::HandleExploreCheatCommand,     "Reveals the unexplored parts of the map.",        NULL, 0, 0, 0 },
 		{ "flyspeed",    'm', &ChatHandler::HandleFlySpeedCheatCommand,    "Modifies fly speed.",                             NULL, 0, 0, 0 },
-		{ "stack",       'm', &ChatHandler::HandleAuraStackCheatCommand,       "Enables aura stacking cheat.",                NULL, 0, 0, 0 },
+		{ "stack",       'm', &ChatHandler::HandleAuraStackCheatCommand,   "Enables aura stacking cheat.",                    NULL, 0, 0, 0 },
 		{ "triggerpass", 'm', &ChatHandler::HandleTriggerpassCheatCommand, "Ignores area trigger prerequisites.",             NULL, 0, 0, 0 },
+		{ "waterwalk",   'd', &ChatHandler::HandleDebugWaterWalk,          "Enables waterwalk cheat.",                        NULL, 0, 0, 0 },
 		{ NULL,          '0', NULL,                                        "",                                                NULL, 0, 0, 0 }
 	};
 	dupe_command_table(CheatCommandTable, _CheatCommandTable);
@@ -549,14 +556,10 @@ void CommandTableStorage::Init()
 	static ChatCommand characterCommandTable[] =
 	{
 		{ "getskillinfo",        'm', &ChatHandler::HandleGetSkillsInfoCommand,    "Gets all the skills from a player",                                                                                 NULL, 0, 0, 0 },
-		{ "learnskill",          'm', &ChatHandler::HandleLearnSkillCommand,       ".learnskill <skillid> (optional) <value> <maxvalue> - Learns skill id skillid.",                                    NULL, 0, 0, 0 },
 		{ "advanceskill",        'm', &ChatHandler::HandleModifySkillCommand,      "advanceskill <skillid> <amount, optional, default = 1> - Advances skill line x times..",                            NULL, 0, 0, 0 },
 		{ "removeskill",         'm', &ChatHandler::HandleRemoveSkillCommand,      ".removeskill <skillid> - Removes skill",                                                                            NULL, 0, 0, 0 },
 		{ "increaseweaponskill", 'm', &ChatHandler::HandleIncreaseWeaponSkill,     ".increaseweaponskill <count> - Increase eqipped weapon skill x times (defaults to 1).",                             NULL, 0, 0, 0 },
 		{ "resetreputation",     'n', &ChatHandler::HandleResetReputationCommand,  ".resetreputation - Resets reputation to start levels. (use on characters that were made before reputation fixes.)", NULL, 0, 0, 0 },
-		{ "resetspells",         'n', &ChatHandler::HandleResetSpellsCommand,      ".resetspells - Resets all spells to starting spells of targeted player. DANGEROUS.",                                NULL, 0, 0, 0 },
-		{ "resettalents",        'n', &ChatHandler::HandleResetTalentsCommand,     ".resettalents - Resets all talents of targeted player to that of their current level. DANGEROUS.",                  NULL, 0, 0, 0 },
-		{ "resetskills",         'n', &ChatHandler::HandleResetSkillsCommand,      ".resetskills - Resets all skills.",                                                                                 NULL, 0, 0, 0 },
 		{ "removeitem",          'm', &ChatHandler::HandleRemoveItemCommand,       "Removes item %u count %u.",                                                                                         NULL, 0, 0, 0 },
 		{ "additemset",          'm', &ChatHandler::HandleAddItemSetCommand,       "Adds item set to inv.",                                                                                             NULL, 0, 0, 0 },
 		{ "advanceallskills",    'm', &ChatHandler::HandleAdvanceAllSkillsCommand, "Advances all skills <x> points.",                                                                                   NULL, 0, 0, 0 },
@@ -568,10 +571,14 @@ void CommandTableStorage::Init()
 		{ "repairitems",         'n', &ChatHandler::HandleRepairItemsCommand,      ".repairitems - Repair all items from selected player",                                                              NULL, 0, 0, 0 },
 		{ "settitle",			 'm', &ChatHandler::HandleSetTitle,				   "Adds title to a player",																					NULL, 0, 0, 0 },
 /*
-		//{ "learn",               'm', &ChatHandler::HandleLearnCommand,            "Learns spell",                                                                                                      NULL, 0, 0, 0 },
-		//{ "additem",             'm', &ChatHandler::HandleAddInvItemCommand,       "Adds item x count y",                                                                                                                  NULL, 0, 0, 0 },
-		//{ "rename",              'm', &ChatHandler::HandleRenameCommand,           "Renames character x to y.",                                                                                         NULL, 0, 0, 0 },
-		//{ "forcerename",         'm', &ChatHandler::HandleForceRenameCommand,      "Forces character x to rename his char next login",                                                                  NULL, 0, 0, 0 },
+		{ "learnskill",          'm', &ChatHandler::HandleLearnSkillCommand,       ".learnskill <skillid> (optional) <value> <maxvalue> - Learns skill id skillid.",                                    NULL, 0, 0, 0 },
+		{ "resetspells",         'n', &ChatHandler::HandleResetSpellsCommand,      ".resetspells - Resets all spells to starting spells of targeted player. DANGEROUS.",                                NULL, 0, 0, 0 },
+		{ "resettalents",        'n', &ChatHandler::HandleResetTalentsCommand,     ".resettalents - Resets all talents of targeted player to that of their current level. DANGEROUS.",                  NULL, 0, 0, 0 },
+		{ "resetskills",         'n', &ChatHandler::HandleResetSkillsCommand,      ".resetskills - Resets all skills.",                                                                                 NULL, 0, 0, 0 },
+		{ "learn",               'm', &ChatHandler::HandleLearnCommand,            "Learns spell",                                                                                                      NULL, 0, 0, 0 },
+		{ "additem",             'm', &ChatHandler::HandleAddInvItemCommand,       "Adds item x count y",                                                                                                                  NULL, 0, 0, 0 },
+		{ "rename",              'm', &ChatHandler::HandleRenameCommand,           "Renames character x to y.",                                                                                         NULL, 0, 0, 0 },
+		{ "forcerename",         'm', &ChatHandler::HandleForceRenameCommand,      "Forces character x to rename his char next login",                                                                  NULL, 0, 0, 0 },
 */
 		{ NULL,                  '0', NULL,                                        "",                                                                                                                  NULL, 0, 0, 0 }
 	};
@@ -655,6 +662,26 @@ void CommandTableStorage::Init()
 		{ NULL,              '0', NULL,                                            "",                                              NULL, 0, 0, 0 }
 	};
 	dupe_command_table(arenaCommandTable, _arenaCommandTable);
+	
+	static ChatCommand learnCommandTable[] =
+	{	//Learn command table. --Hemi
+		{ "all",			'm', &ChatHandler::HandleLearnAllCommand,			"Teaches all class spells.",								                                           NULL, 0, 0, 0 },
+		{ "spell",			'm', &ChatHandler::HandleLearnSpellCommand,			"Teaches a select spell. <spellID> or <spellLink>.",		                                           NULL, 0, 0, 0 },
+		{ "talents",		'm', &ChatHandler::HandleLearnTalentCommand,		"Teaches all class talents.",								                                           NULL, 0, 0, 0 },
+		{ "skill",          'm', &ChatHandler::HandleLearnSkillCommand,         "Teaches a select skill: <skillid> (optional) <value> <maxvalue>",                                     NULL, 0, 0, 0 },
+		{ NULL,				'0', NULL,											"",															                                           NULL, 0, 0, 0 }
+	};
+	dupe_command_table(learnCommandTable, _learnCommandTable);
+
+	static ChatCommand unlearnCommandTable[] =
+	{	//unLearn command table. --Hemi
+		{ "all",            'm', &ChatHandler::HandleResetSpellsCommand,        "Unlearns all spells to starting spells of targeted player. DANGEROUS.",                               NULL, 0, 0, 0 },
+		{ "spell",			'm', &ChatHandler::HandleUnlearnCommand,			"Unlearns a select spell. <spellID> or <spellLink>.",                                                  NULL, 0, 0, 0 },
+		{ "talents",        'm', &ChatHandler::HandleResetTalentsCommand,       "Unlearns all talents of targeted player. DANGEROUS.",                                                 NULL, 0, 0, 0 },
+		{ "skills",         'm', &ChatHandler::HandleResetSkillsCommand,        "Unlearns all skills.",                                                                                NULL, 0, 0, 0 },
+		{ NULL,				'0', NULL,											"",															                                           NULL, 0, 0, 0 }
+	};
+	dupe_command_table(unlearnCommandTable, _unlearnCommandTable);
 
 	static ChatCommand commandTable[] =
 	{
@@ -666,7 +693,7 @@ void CommandTableStorage::Init()
 		{ "summon",          'v', &ChatHandler::HandleSummonCommand,                        "Summons x to your position",                                                                                                              NULL,                     0, 0, 0 },
 		{ "revive",          'r', &ChatHandler::HandleReviveCommand,                        "Revives you.",                                                                                                                            NULL,                     0, 0, 0 },
 		{ "reviveplr",       'r', &ChatHandler::HandleReviveStringcommand,                  "Revives player specified.",                                                                                                               NULL,                     0, 0, 0 },
-		{ "morph",           'm', NULL,                                                     "Modifies the display identifier (DisplayID) of the target.",      NULL, UNIT_FIELD_DISPLAYID,              0,                    1 },
+		{ "morph",           'm', NULL,                                                     "Modifies the display identifier (DisplayID) of the target.",                                                                              NULL,  UNIT_FIELD_DISPLAYID, 0, 1 },
 		{ "demorph",         'm', &ChatHandler::HandleDeMorphCommand,                       "Demorphs from morphed model.",                                                                                                            NULL,                     0, 0, 0 },
 		{ "mount",           'm', &ChatHandler::HandleMountCommand,                         "Mounts into modelid x.",                                                                                                                  NULL,                     0, 0, 0 },
 		{ "dismount",        'h', &ChatHandler::HandleDismountCommand,                      "Dismounts.",                                                                                                                              NULL,                     0, 0, 0 },
@@ -676,9 +703,9 @@ void CommandTableStorage::Init()
 		{ "invincible",      'j', &ChatHandler::HandleInvincibleCommand,                    ".invincible - Toggles INVINCIBILITY (mobs won't attack you)",                                                                             NULL,                     0, 0, 0 },
 		{ "invisible",       'i', &ChatHandler::HandleInvisibleCommand,                     ".invisible - Toggles INVINCIBILITY and INVISIBILITY (mobs won't attack you and nobody can see you, but they can see your chat messages)", NULL,                     0, 0, 0 },
 		{ "playerinfo",      'm', &ChatHandler::HandlePlayerInfo,                           ".playerinfo - Displays informations about the selected character (account...)",                                                           NULL,                     0, 0, 0 },
-		{ "learn",           'm', &ChatHandler::HandleLearnCommand,                         "Learns spell",                                                                                                      NULL, 0, 0, 0 },
-		{ "unlearn",         'm', &ChatHandler::HandleUnlearnCommand,                       "Unlearns spell",                                                                                                    NULL, 0, 0, 0 },
-		{ "additem",         'm', &ChatHandler::HandleAddInvItemCommand,                    "Adds item x count y",                                                                                                                  NULL, 0, 0, 0 },
+		{ "learn",           'm', NULL,                         							"",                                                                                                                                        learnCommandTable,        0, 0, 0 },
+		{ "unlearn",         'm', NULL,                       								"",                                                                                                                                        unlearnCommandTable,      0, 0, 0 },
+		{ "additem",         'm', &ChatHandler::HandleAddInvItemCommand,                    "Adds a select item. <itemID>/<itemLink> <itemCount>",                                                                                     NULL,                     0, 0, 0 },
 		{ "modify",          'm', NULL,                                                     "",                                                                                                                                        modifyCommandTable,       0, 0, 0 },
 		{ "waypoint",        'w', NULL,                                                     "",                                                                                                                                        waypointCommandTable,     0, 0, 0 },
 		{ "debug",           'd', NULL,                                                     "",                                                                                                                                        debugCommandTable,        0, 0, 0 },
@@ -706,9 +733,12 @@ void CommandTableStorage::Init()
 		{ "paralyze",        'b', &ChatHandler::HandleParalyzeCommand,                      "Roots/Paralyzes the target.",                                                                                                             NULL,                     0, 0, 0 },
 		{ "unparalyze",      'b', &ChatHandler::HandleUnParalyzeCommand,                    "Unroots/Unparalyzes the target.",                                                                                                         NULL,                     0, 0, 0 },
 		{ "logcomment",      '1', &ChatHandler::HandleGmLogCommentCommand,                  "Adds a comment to the GM log for the admins to read.",                                                                                    NULL,                     0, 0, 0 },
-		{ "bank",    'a', &ChatHandler::HandleShowBankCommand,      "Open your bank from anywhere.", NULL, 0, 0, 0},
-		{ "chatcolor",   'a', &ChatHandler::HandleColorChat,       "SYNTAX: None.\nNOTES: Toggles ranked chat color in chat messages on/off.",  NULL, 0, 0, 0},
+		{ "bank",    		 '0', &ChatHandler::HandleShowBankCommand,      "Open your bank from anywhere.", NULL, 0, 0, 0},
+		{ "chatcolor",   	 'a', &ChatHandler::HandleColorChat,       "SYNTAX: None.\nNOTES: Toggles ranked chat color in chat messages on/off.",  NULL, 0, 0, 0},
 /*
+		{ "alltalents",      'm', &ChatHandler::HandleLearnTalentCommand,                   "Learns all talents",                                                                                                                      NULL,                     0, 0, 0 },
+		{ "learn",           'm', &ChatHandler::HandleLearnCommand,                       "Learns spell",                                                                                                                              NULL,                     0, 0, 0 },
+		{ "unlearn",         'm', &ChatHandler::HandleUnlearnCommand,                       "Unlearns a select spell. <spellID> or <spellLink>.",                                                                                      NULL,                     0, 0, 0 },
 		{ "removesickness",  'm', &ChatHandler::HandleRemoveRessurectionSickessAuraCommand, "Removes ressurrection sickness from the target",                                                                                          NULL,                     0, 0, 0 },
 		{ "levelup",         'm', &ChatHandler::HandleLevelUpCommand,                       "Levelup x lvls",                                                                                                                          NULL,                     0, 0, 0 },
 		{ "account",         'a', NULL,                                                     "",                                                                                                                                        accountCommandTable,      0, 0, 0 },

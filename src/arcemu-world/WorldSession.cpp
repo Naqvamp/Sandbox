@@ -121,7 +121,6 @@ int WorldSession::Update(uint32 InstanceID)
 
 		if(!_logoutTime)
 			_logoutTime = m_currMsTime + PLAYER_LOGOUT_DELAY;
-
 /*
 				if(_player && _player->DuelingWith)
 					_player->EndDuel(DUEL_WINNER_RETREAT);
@@ -194,6 +193,9 @@ int WorldSession::Update(uint32 InstanceID)
 
 		if( _socket == NULL )
 		{
+			if(_player)	//Inform the console a player has disconnected. --Hemi
+				sLog.outString("[%s] has disconnected.", _player->GetName());
+
 			bDeleted = true;
 			LogoutPlayer(true);
 			return 1;
@@ -583,6 +585,7 @@ void WorldSession::InitPacketHandlerTable()
 	
 	// Player Interaction
 	WorldPacketHandlers[CMSG_WHO].handler									   = &WorldSession::HandleWhoOpcode;
+	WorldPacketHandlers[CMSG_WHOIS].handler									= &WorldSession::HandleWhoisOpcode;	//Implementing "/console whois" command / CMSG_WHOIS opcode. --Hemi
 	WorldPacketHandlers[CMSG_LOGOUT_REQUEST].handler							= &WorldSession::HandleLogoutRequestOpcode;
 	WorldPacketHandlers[CMSG_PLAYER_LOGOUT].handler							 = &WorldSession::HandlePlayerLogoutOpcode;
 	WorldPacketHandlers[CMSG_LOGOUT_CANCEL].handler							 = &WorldSession::HandleLogoutCancelOpcode;

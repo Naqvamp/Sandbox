@@ -4252,6 +4252,12 @@ void Spell::SpellEffectInterruptCast(uint32 i) // Interrupt Cast
 			}
 		}
 	}
+	if( u_caster->HasAura( 13867 ) )	//Improved Kick - Silence bug fix. --Hemi
+		u_caster->CastSpell( unitTarget, 18425, true );
+	else if( u_caster->HasAura( 13754 ) ) // roll
+		if( RandomUInt( 1 ) )
+			u_caster->CastSpell( unitTarget, 18425, true );
+
 	// FIXME:This thing prevent target from spell casting too but cant find.
 	uint32 school=0;
 	if(unitTarget->GetCurrentSpell())

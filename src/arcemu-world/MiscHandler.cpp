@@ -751,19 +751,84 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
 		delete [] names;
 }
 
+void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
+{	//Implement CMSGWHOIS opcode. --Hemi
+	sLog.outDebug( "WORLD: got CMSG_WHOIS." );
+	std::string charname;
+	recv_data >> charname;
+
+	if (!GetPlayer()->GetSession()->CanUseCommand('z'))
+	{
+		SendNotification(NOTIFICATION_MESSAGE_NO_PERMISSION);
+		return;
+	}
+	if (charname.empty())
+	{
+		SendNotification("You did not enter a character name!");
+		return;
+	}
+	QueryResult *result_acctID = CharacterDatabase.Query("SELECT acct FROM characters WHERE name = '%s'", charname.c_str());
+	if (!result_acctID)
+	{	//If the Query from the Character table is NULL, inform the User the character doesn't exist. --Hemi
+		SendNotification("%s does not exit!", charname.c_str());
+		delete result_acctID;
+		return;
+	}
+	Field* fields_acctID = result_acctID->Fetch();
+	uint32 accid = fields_acctID[0].GetUInt32();
+	delete result_acctID;
+
+	QueryResult *result = CharacterDatabase.Query("SELECT acct, login, gm, email, lastip, muted FROM accounts WHERE acct = %u", accid);
+	if (!result)
+	{	//This shouldn't happen. --Hemi
+		SendNotification("Account information for %s not found!", charname.c_str());
+		delete result;
+		return;
+	}
+		
+	Field* fields = result->Fetch();
+	std::string acctID = fields[0].GetString();
+	if (acctID.empty())
+		acctID = "Unknown";
+	std::string acctName = fields[1].GetString();
+	if (acctName.empty())
+		acctName = "Unknown";
+	std::string acctPerms = fields[2].GetString();
+	if (acctPerms.empty())
+		acctPerms = "Unknown";
+	std::string acctEmail = fields[3].GetString();
+	if (acctEmail.empty())
+		acctEmail = "Unknown";
+	std::string acctIP = fields[4].GetString();
+	if (acctIP.empty())
+		acctIP = "Unknown";
+	std::string acctMuted = fields[5].GetString();
+	if (acctMuted.empty())
+		acctMuted = "Unknown";
+	delete result;
+	
+	std::string msg = charname + "'s " + "account information: acctID: " + acctID + ", Name: " + acctName + 
+		", Permissions: " + acctPerms + ", E-Mail: " + acctEmail + ", lastIP: " + acctIP + ", Muted: " + acctMuted;
+
+	WorldPacket data(SMSG_WHOIS, msg.size()+1);
+	data << msg;
+	SendPacket(&data);
+	sLog.outDebug("Received whois command from player %s for character %s", GetPlayer()->GetName(), charname.c_str());
+}
+
 void WorldSession::HandleLogoutRequestOpcode( WorldPacket & recv_data )
 {
 	Player *pPlayer = GetPlayer();
 	WorldPacket data( SMSG_LOGOUT_RESPONSE, 5 );
 
 	sLog.outDebug( "WORLD: Recvd CMSG_LOGOUT_REQUEST Message" );
-	sLog.outString("[%s] %s", _player->GetName(), "is logging out.");
+	sLog.outString("[%s] has logged out.", _player->GetName());
 	if(pPlayer)
 	{
 		sHookInterface.OnLogoutRequest(pPlayer);
 
 		if(GetPermissionCount() > 0)
-		{
+		{	//GM's will be able to instantly logout granted they're not in combat. --Hemi
 			//Logout on NEXT sessionupdate to preserve processing of dead packets (all pending ones should be processed)
 			SetLogoutTimer(1);
 			return;
@@ -808,14 +873,12 @@ void WorldSession::HandlePlayerLogoutOpcode( WorldPacket & recv_data )
 {
 	Player *pPlayer = GetPlayer();
 	sLog.outDebug( "WORLD: Recvd CMSG_PLAYER_LOGOUT Message" );
-	sLog.outString("[%s] %s", _player->GetName(), "has logged out.");
-	if(!HasGMPermissions())
-	{
-		// send "You do not have permission to use this"
+	sLog.outString("[%s] has logged out", _player->GetName());
+
+	if(!HasGMPermissions() || pPlayer->CombatStatus.IsInCombat())	//Prevent the command from being used while in combat. --Hemi
 		SendNotification(NOTIFICATION_MESSAGE_NO_PERMISSION);
-	} else {
+	else
 		LogoutPlayer(true);
-	}
 }
 
 void WorldSession::HandleLogoutCancelOpcode( WorldPacket & recv_data )

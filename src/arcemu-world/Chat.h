@@ -161,6 +161,8 @@ class SERVER_DECL CommandTableStorage : public Singleton<CommandTableStorage>
 	ChatCommand* _unbanCommandTable;
 	ChatCommand* _instanceCommandTable;
 	ChatCommand* _arenaCommandTable;
+	ChatCommand* _learnCommandTable;	//Learn command table. --Hemi
+	ChatCommand* _unlearnCommandTable;	//Unlearn command table. --Hemi
 	ChatCommand* _commandTable;
 
 	ChatCommand * GetSubCommandTable(const char * name);
@@ -317,7 +319,10 @@ protected:
 	bool HandleMassSummonCommand(const char* args, WorldSession *m_session);
 	bool HandleWorldPortCommand(const char* args, WorldSession *m_session);
 	bool HandleMoveCommand(const char* args, WorldSession *m_session);
-	bool HandleLearnCommand(const char* args, WorldSession *m_session);
+	bool HandleLearnSpellCommand(const char* args, WorldSession *m_session);	//Learn select spell. ID or Link.
+	bool HandleLearnAllCommand(const char* args, WorldSession *m_session);		//Learn all class spells.
+	bool HandleLearnTalentCommand(const char* args, WorldSession *m_session);	//Command to learn all talents. --Hemi
+	bool HandleUnlearnCommand(const char* args, WorldSession * m_session);		//Unlearn spell command.
 	bool HandleReviveCommand(const char* args, WorldSession *m_session);
 	bool HandleGenderChanger(const char* args, WorldSession *m_session);
 	bool HandleAddGraveCommand(const char* args, WorldSession *m_session);
@@ -429,7 +434,7 @@ protected:
 	bool HandleNextDayCommand(const char* args, WorldSession* m_session);
 	bool HandlePVPCreditCommand(const char* args, WorldSession* m_session);
 	
-	bool HandleUnlearnCommand(const char* args, WorldSession * m_session);
+	
 	bool HandleModifyLevelCommand(const char* args, WorldSession* m_session);
 	
 	// pet

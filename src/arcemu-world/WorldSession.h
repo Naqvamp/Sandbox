@@ -311,6 +311,7 @@ protected:
 	void HandleLootMasterGiveOpcode(WorldPacket& recv_data);
 	void HandleLootRollOpcode(WorldPacket& recv_data);
 	void HandleWhoOpcode(WorldPacket& recvPacket);
+	void HandleWhoisOpcode(WorldPacket& recv_data);	//Implementing /console whois command / CMSG_WHOIS opcode. --Hemi
 	void HandleLogoutRequestOpcode(WorldPacket& recvPacket);
 	void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
 	void HandleLogoutCancelOpcode(WorldPacket& recvPacket);

@@ -24,6 +24,32 @@
 
 #include "StdAfx.h"
 
+uint16 GetItemIDFromLink(const char* itemlink, uint32* itemid)
+{	//Ported from Arcemu 3.3.5. Support for adding items via links.
+	if(itemlink == NULL)
+	{
+		*itemid = 0;
+		return 0;
+	}
+	uint16 slen = (uint16)strlen(itemlink);
+	const char* ptr = strstr(itemlink, "|Hitem:");
+	if(ptr == NULL)
+	{
+		*itemid = 0;
+		return slen;
+	}
+	ptr += 7; // item id is just past "|Hitem:" (7 bytes)
+	*itemid = atoi(ptr);
+	ptr = strstr(itemlink, "|r"); // the end of the item link
+	if(ptr == NULL) // item link was invalid
+	{
+		*itemid = 0;
+		return slen;
+	}
+	ptr += 2;
+	return (ptr - itemlink) & 0x0000ffff;
+}
+
 bool ChatHandler::HandleAnnounceCommand(const char* args, WorldSession *m_session)
 {
 	if( !*args || strlen(args) < 4 || strchr(args, '%'))
@@ -236,7 +262,12 @@ bool ChatHandler::HandleAddInvItemCommand(const char *args, WorldSession *m_sess
 	}
 
 	if(sscanf(args, "%u %u %d", &itemid, &count, &randomprop) < 1)
-		return false;
+	{	// check for item link
+		uint16 ofs = GetItemIDFromLink(args, &itemid);
+		if(itemid == 0)
+			return false;
+		sscanf(args + ofs, "%u %d", &count, &randomprop); // these may be empty
+	}
 
 	Player * chr = getSelectedChar( m_session, false );
 	if ( chr == NULL )
@@ -284,6 +315,49 @@ bool ChatHandler::HandleAddInvItemCommand(const char *args, WorldSession *m_sess
 		RedSystemMessage(m_session, "Item %d is not a valid item!", itemid);
 		return true;
 	}
+}
+
+bool ChatHandler::HandleRemoveItemCommand(const char * args, WorldSession * m_session)
+{	//Moved RemoveItem command from Level3 to Level1 --Hemi
+	uint32 item_id;
+	int32 count, ocount;
+	int argc = sscanf(args, "%u %u", (unsigned int*)&item_id, (unsigned int*)&count);
+	if(argc == 1)
+		count = 1;
+	else if(argc != 2 || !count)
+		return false;
+
+	ocount = count;
+	Player * plr = getSelectedChar(m_session, true);
+	if(!plr) return true;
+
+	// loop until they're all gone.
+	int32 loop_count = 0;
+	int32 start_count = plr->GetItemInterface()->GetItemCount(item_id, true);
+	int32 start_count2 = start_count;
+	if(count > start_count)
+		count = start_count;
+
+	while(start_count >= count && (count > 0) && loop_count < 20)	 // Prevent a loop here.
+	{
+		plr->GetItemInterface()->RemoveItemAmt(item_id, count);
+		start_count2 = plr->GetItemInterface()->GetItemCount(item_id, true);
+		count -= (start_count - start_count2);
+		start_count = start_count2;
+		++loop_count;
+	}
+
+	ItemPrototype * iProto	= ItemPrototypeStorage.LookupEntry(item_id);
+
+	if( iProto )
+	{
+		sGMLog.writefromsession(m_session, "used remove item %s (id: %u) count %u from %s", iProto->Name1, item_id, ocount, plr->GetName());
+		BlueSystemMessage(m_session, "Removing %u copies of item %s (id: %u) from %s's inventory.", ocount, GetItemLinkByProto(iProto, m_session->language).c_str(), item_id, plr->GetName());
+		BlueSystemMessage(plr->GetSession(), "%s removed %u copies of item %s from your inventory.", m_session->GetPlayer()->GetName(), ocount, GetItemLinkByProto(iProto, plr->GetSession()->language).c_str());
+	}
+	else RedSystemMessage(m_session, "Cannot remove non valid item id: %u .",item_id);
+
+	return true;
 }
 
 bool ChatHandler::HandleSummonCommand(const char* args, WorldSession *m_session)
@@ -743,35 +817,6 @@ bool ChatHandler::HandleTriggerCommand(const char* args, WorldSession* m_session
 
 	BlueSystemMessage(m_session, "Teleported to trigger %u on [%u][%.2f][%.2f][%.2f]", entry->id,
 		entry->mapid, entry->x, entry->y, entry->z);
-	return true;
-}
-
-bool ChatHandler::HandleUnlearnCommand(const char* args, WorldSession * m_session)
-{
-	Player * plr = getSelectedChar(m_session, true);
-	if(plr == 0)
-		return true;
-
-	uint32 SpellId = atol(args);
-	if(SpellId == 0)
-	{
-		RedSystemMessage(m_session, "You must specify a spell id.");
-		return true;
-	}
-
-	sGMLog.writefromsession(m_session, "removed spell %u from %s", SpellId, plr->GetName());
-
-	if(plr->HasSpell(SpellId))
-	{
-		GreenSystemMessageToPlr(plr, "Removed spell %u.", SpellId);
-		GreenSystemMessage(m_session, "Removed spell %u from %s.", SpellId, plr->GetName());
-		plr->removeSpell(SpellId, false, false, 0);
-	}
-	else
-	{
-		RedSystemMessage(m_session, "That player does not have spell %u learnt.", SpellId);
-	}
-
 	return true;
 }
 

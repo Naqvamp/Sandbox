@@ -812,7 +812,7 @@ void WorldSession::FullLogin(Player * plr)
 	}
 
 	Log.Debug("Login", "Player %s logged in.", plr->GetName());
-
+	sLog.outString("[%s] has logged in.", plr->GetName());
 	if(plr->GetTeam() == 1)
 		sWorld.HordePlayers++;
 	else
@@ -833,7 +833,6 @@ void WorldSession::FullLogin(Player * plr)
 
 	}
 
-	sLog.outString( "WORLD: Created new player for existing players (%s)", plr->GetName() );
 	sLog.outDetail( "WORLD: Created new player for existing players (%s)", plr->GetName() );
 
 	// Login time, will be used for played time calc
