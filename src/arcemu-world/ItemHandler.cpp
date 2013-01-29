@@ -24,37 +24,39 @@ void WorldSession::HandleSplitOpcode(WorldPacket& recv_data)
 {
 	if(!_player->IsInWorld()) return;
 	CHECK_PACKET_SIZE(recv_data, 5);
-	int8 DstInvSlot=0, DstSlot=0, SrcInvSlot=0, SrcSlot=0;
-	uint8 count=0;
-
+	int8 DstInvSlot = 0, DstSlot = 0, SrcInvSlot = 0, SrcSlot = 0, count = 0;
 	AddItemResult result;
-
 	recv_data >> SrcInvSlot >> SrcSlot >> DstInvSlot >> DstSlot >> count;
+	
+	sLog.outDetail("ITEM Split: DstInvSlot: %i, DstSlot: %i, SrcInvSlot: %i, SrcSlot %i.", DstInvSlot, DstSlot, SrcInvSlot, SrcSlot);
+
 	if(!GetPlayer())
 		return;
 
-	if( count==0 || count >= 127 || (SrcInvSlot <= 0 && SrcSlot < INVENTORY_SLOT_ITEM_START) || (DstInvSlot <= 0 && DstSlot < INVENTORY_SLOT_ITEM_START))
-	{	//Exploit fix. Could possibly increase the stack split amount here. --Hemi
-		return;
-	}
-
-	int32 c=count;
-	Item *i1 =_player->GetItemInterface()->GetInventoryItem(SrcInvSlot,SrcSlot);
+	Item *i1 = _player->GetItemInterface()->GetInventoryItem(SrcInvSlot,SrcSlot);
+	Item *i2 = _player->GetItemInterface()->GetInventoryItem(DstInvSlot,DstSlot);
 	if(!i1)
 		return;
-	Item *i2=_player->GetItemInterface()->GetInventoryItem(DstInvSlot,DstSlot);
 
+	if( count == 0 || count >= 256 )
+	{	//Increased item split cap and send an error.. --Hemi
+		_player->GetItemInterface()->BuildInventoryChangeError(i1, i2, INV_ERR_COULDNT_SPLIT_ITEMS);
+		return;
+	}
+	if( ( SrcInvSlot <= 0 && SrcSlot < INVENTORY_SLOT_ITEM_START ) || ( DstInvSlot <= 0 && DstSlot < INVENTORY_SLOT_ITEM_START ) )
+		return;
+
+	int32 c=count;
 	if( (i1 && i1->wrapped_item_id) || (i2 && i2->wrapped_item_id) || ( i1 && i1->GetProto()->MaxCount < 2 ) || ( i2 && i2->GetProto()->MaxCount < 2 ) || count < 1 )
 	{
 		GetPlayer()->GetItemInterface()->BuildInventoryChangeError(i1, i2, INV_ERR_ITEM_CANT_STACK);
         return;
 	}
 
-	if(i2)//smth already in this slot
-	{
+	if(i2)
+	{	//smth already in this slot
 		if(i1->GetEntry()==i2->GetEntry() )
-		{
-			//check if player has the required stacks to avoid exploiting.
+		{	//check if player has the required stacks to avoid exploiting.
 			//safe exploit check
 			if(c < (int32)i1->GetUInt32Value(ITEM_FIELD_STACK_COUNT))
 			{
@@ -72,8 +74,7 @@ void WorldSession::HandleSplitOpcode(WorldPacket& recv_data)
 				}
 			}
 			else
-			{
-				//error cant split item
+			{	//error cant split item
 				_player->GetItemInterface()->BuildInventoryChangeError(i1, i2, INV_ERR_COULDNT_SPLIT_ITEMS);
 			}
 		}
@@ -94,8 +95,7 @@ void WorldSession::HandleSplitOpcode(WorldPacket& recv_data)
 			i2->m_isDirty = true;
 
 			if(DstSlot == -1)
-			{
-				// Find a free slot
+			{	// Find a free slot
 				SlotResult res = _player->GetItemInterface()->FindFreeInventorySlot(i2->GetProto());
 				if(!res.Result)
 				{
@@ -131,20 +131,19 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 	WorldPacket packet;
 	Item *SrcItem = NULL;
 	Item *DstItem = NULL;
+	int8 DstInvSlot = 0, DstSlot = 0, SrcInvSlot = 0, SrcSlot = 0, error = 0;
+	recv_data >> DstInvSlot >> DstSlot >> SrcInvSlot >> SrcSlot;
 
-	//Item *SrcTemp = NULL;
-	//Item *DstTemp = NULL;
-
-	int8 DstInvSlot=0, DstSlot=0, SrcInvSlot=0, SrcSlot=0, error=0;
-	//	 20		   5			255	  26
+	sLog.outDetail("ITEM Swap: DstInvSlot: %i, DstSlot: %i, SrcInvSlot: %i, SrcSlot: %i.", DstInvSlot, DstSlot, SrcInvSlot, SrcSlot);
 
 	if(!GetPlayer())
 		return;
+
+	SrcItem = _player->GetItemInterface()->GetInventoryItem(SrcInvSlot,SrcSlot);
+	DstItem = _player->GetItemInterface()->GetInventoryItem(DstInvSlot,DstSlot);
+	if(!SrcItem)
+		return;
 	
-	recv_data >> DstInvSlot >> DstSlot >> SrcInvSlot >> SrcSlot;
-
-	sLog.outDetail("ITEM: swap, DstInvSlot %i DstSlot %i SrcInvSlot %i SrcSlot %i", DstInvSlot, DstSlot, SrcInvSlot, SrcSlot);
-
 	if(DstInvSlot == SrcSlot && SrcInvSlot == -1) // player trying to add self container to self container slots
 	{
 		GetPlayer()->GetItemInterface()->BuildInventoryChangeError(NULL, NULL, INV_ERR_ITEMS_CANT_BE_SWAPPED);
@@ -153,21 +152,23 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 	
 	if(SrcSlot > MAX_INVENTORY_SLOT || DstSlot > MAX_INVENTORY_SLOT)
 	{	//Item duplication exploit fix. --Hemi
-		Disconnect();	//We want to disconnect these scum! --Hemi
+		Disconnect();
 		return;
+	}
+	if( DstSlot >= BANK_SLOT_BAG_START && DstSlot <= BANK_SLOT_BAG_END )
+	{	//Item duplication exploit fix. --Hemi
+		if(!SrcItem->IsContainer())
+		{
+			_player->GetItemInterface()->BuildInventoryChangeError(SrcItem,DstItem, INV_ERR_NOT_A_BAG);
+			return;
+		}
 	}
 
 	if( ( DstInvSlot <= 0 && DstSlot < 0 ) || DstInvSlot < -1 )
 		return;
-	
+
 	if( ( SrcInvSlot <= 0 && SrcSlot < 0 ) || SrcInvSlot < -1 )
 		return;
-
-	SrcItem=_player->GetItemInterface()->GetInventoryItem(SrcInvSlot,SrcSlot);
-	if(!SrcItem)
-		return;
-
-	DstItem=_player->GetItemInterface()->GetInventoryItem(DstInvSlot,DstSlot);
 
 	if(DstItem)
 	{   //check if it will go to equipment slot
@@ -275,8 +276,8 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 		{
 			_player->GetItemInterface()->SwapItemSlots( SrcSlot, DstSlot );
 		}
-		else//in bag
-		{
+		else
+		{	//in bag
 			static_cast< Container* >( _player->GetItemInterface()->GetInventoryItem( SrcInvSlot ) )->SwapItems( SrcSlot, DstSlot );
 		}
 	}
@@ -300,9 +301,8 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 			}
 		}*/
 
-		//Check for stacking
 		if(DstItem && SrcItem->GetEntry()==DstItem->GetEntry() && SrcItem->GetProto()->MaxCount>1 && SrcItem->wrapped_item_id == 0 && DstItem->wrapped_item_id == 0)
-		{
+		{	//Check for stacking
 			uint32 total=SrcItem->GetUInt32Value(ITEM_FIELD_STACK_COUNT)+DstItem->GetUInt32Value(ITEM_FIELD_STACK_COUNT);
 			if(total<=DstItem->GetProto()->MaxCount)
 			{
@@ -341,32 +341,26 @@ void WorldSession::HandleSwapItemOpcode(WorldPacket& recv_data)
 
 		if(SrcItem)
 		{
-			//if(DstSlot < MAX_INVENTORY_SLOT)
-			//{	//Ghetto dupe fix. Hopefully temporary. --Hemi
-				AddItemResult result =_player->GetItemInterface()->SafeAddItem(SrcItem,DstInvSlot,DstSlot);
-				if(!result)
-				{
-					printf("HandleSwapItem: Error while adding item to dstslot\n");
-					SrcItem->DeleteFromDB();
-					SrcItem->DeleteMe();
-					SrcItem = NULL;
-				}
-			//}
+			AddItemResult result =_player->GetItemInterface()->SafeAddItem(SrcItem,DstInvSlot,DstSlot);
+			if(!result)
+			{
+				printf("HandleSwapItem: Error while adding item to dstslot\n");
+				SrcItem->DeleteFromDB();
+				SrcItem->DeleteMe();
+				SrcItem = NULL;
+			}
 		}
 
 		if(DstItem)
 		{
-			//if(SrcSlot < MAX_INVENTORY_SLOT)
-			//{	//Ghetto dupe fix. Hopefully temporary. --Hemi
-				AddItemResult result = _player->GetItemInterface()->SafeAddItem(DstItem,SrcInvSlot,SrcSlot);
-				if(!result)
-				{
-					printf("HandleSwapItem: Error while adding item to srcslot\n");
-					DstItem->DeleteFromDB();
-					DstItem->DeleteMe();
-					DstItem = NULL;
-				}
-			//}
+			AddItemResult result = _player->GetItemInterface()->SafeAddItem(DstItem,SrcInvSlot,SrcSlot);
+			if(!result)
+			{
+				printf("HandleSwapItem: Error while adding item to srcslot\n");
+				DstItem->DeleteFromDB();
+				DstItem->DeleteMe();
+				DstItem = NULL;
+			}
 		}
 	}
 }
@@ -376,35 +370,36 @@ void WorldSession::HandleSwapInvItemOpcode( WorldPacket & recv_data )
 	if(!_player->IsInWorld()) return;
 	CHECK_PACKET_SIZE(recv_data, 2);
 	WorldPacket data;
-	int8 srcslot=0, dstslot=0;
-	int8 error=0;
-
+	int8 srcslot = 0, dstslot = 0, error = 0;
 	recv_data >> srcslot >> dstslot;
 
+	sLog.outDetail("ITEM Swap: SrcSlot: %i, DstSlot: %i.", srcslot, dstslot);
+	
 	if(!GetPlayer())
 		return;
 
-	sLog.outDetail("ITEM: swap, src slot: %u dst slot: %u", (uint32)srcslot, (uint32)dstslot);
+	Item * srcitem = _player->GetItemInterface()->GetInventoryItem(srcslot);
+	Item * dstitem = _player->GetItemInterface()->GetInventoryItem(dstslot);
+	if(!srcitem)
+		return;
 
-	if(dstslot == srcslot) // player trying to add item to the same slot
-	{
+	if(dstslot == srcslot) 
+	{	// player trying to add item to the same slot
 		GetPlayer()->GetItemInterface()->BuildInventoryChangeError(NULL, NULL, INV_ERR_ITEMS_CANT_BE_SWAPPED);
 		return;
 	}
-
-	Item * dstitem = _player->GetItemInterface()->GetInventoryItem(dstslot);
-	Item * srcitem = _player->GetItemInterface()->GetInventoryItem(srcslot);
-
-	if(dstslot > 66 && !srcitem->IsContainer())
+	if( dstslot >= BANK_SLOT_BAG_START && dstslot < BANK_SLOT_BAG_END )
 	{	//Item duplication exploit fix. --Hemi
-		Disconnect();	//We want to disconnect these scum! --Hemi
-		return;
+		if(!srcitem->IsContainer())
+		{
+			_player->GetItemInterface()->BuildInventoryChangeError(srcitem,dstitem, INV_ERR_NOT_A_BAG);
+			return;
+		}
 	}
 
-	// allow weapon switching in combat
 	bool skip_combat = false;
 	if( srcslot < EQUIPMENT_SLOT_END || dstslot < EQUIPMENT_SLOT_END )	  // We're doing an equip swap.
-	{
+	{	// allow weapon switching in combat
 		if( _player->CombatStatus.IsInCombat() )
 		{
 			if( srcslot < EQUIPMENT_SLOT_MAINHAND || dstslot < EQUIPMENT_SLOT_MAINHAND )	// These can't be swapped
@@ -460,8 +455,7 @@ void WorldSession::HandleSwapInvItemOpcode( WorldPacket & recv_data )
 	}
 
 	if(srcitem->IsContainer())
-	{
-		//source has items and dst is a backpack or bank
+	{	//source has items and dst is a backpack or bank
 		if(((Container*)srcitem)->HasItems())
 			if(!_player->GetItemInterface()->IsBagSlot(dstslot))
 			{
@@ -470,8 +464,7 @@ void WorldSession::HandleSwapInvItemOpcode( WorldPacket & recv_data )
 			}
 
 		if(dstitem)
-		{
-			//source is a bag and dst slot is a bag inventory and has items
+		{	//source is a bag and dst slot is a bag inventory and has items
 			if(dstitem->IsContainer())
 			{
 				if(((Container*)dstitem)->HasItems() && !_player->GetItemInterface()->IsBagSlot(srcslot))
@@ -481,27 +474,24 @@ void WorldSession::HandleSwapInvItemOpcode( WorldPacket & recv_data )
 				}
 			}
 			else
-			{
-				//dst item is not a bag, swap impossible
+			{	//dst item is not a bag, swap impossible
 				_player->GetItemInterface()->BuildInventoryChangeError(srcitem,dstitem,INV_ERR_NONEMPTY_BAG_OVER_OTHER_BAG);
 				return;
 			}
 		}
 
-		//dst is bag inventory
 		if(dstslot < INVENTORY_SLOT_BAG_END)
-		{
+		{	//dst is bag inventory
 			if(srcitem->GetProto()->Bonding==ITEM_BIND_ON_EQUIP)
 				srcitem->SoulBind();
 		}
 	}
 
-	// swap items
-  if( _player->isDead() ) {
-  	_player->GetItemInterface()->BuildInventoryChangeError(srcitem,NULL,INV_ERR_YOU_ARE_DEAD);
-	  return;
-  }
-
+	if( _player->isDead() ) 
+	{	// swap items
+		_player->GetItemInterface()->BuildInventoryChangeError(srcitem,NULL,INV_ERR_YOU_ARE_DEAD);
+		return;
+	}
 	_player->GetItemInterface()->SwapItemSlots(srcslot, dstslot);
 }
 
@@ -509,8 +499,6 @@ void WorldSession::HandleDestroyItemOpcode( WorldPacket & recv_data )
 {
 	if(!_player->IsInWorld()) return;
 	CHECK_PACKET_SIZE(recv_data, 2);
-	//Player *plyr = GetPlayer();
-
 	int8 SrcInvSlot, SrcSlot;
 
 	recv_data >> SrcInvSlot >> SrcSlot;

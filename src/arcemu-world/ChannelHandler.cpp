@@ -306,3 +306,15 @@ void WorldSession::HandleChannelNumMembersQuery(WorldPacket & recvPacket)
 		SendPacket(&data);
 	}
 }
+
+void WorldSession::HandleSetChannelWatchOpcode(WorldPacket & recvPacket)
+{	//Enable Channel Watching? --Hemi --Debug only.
+	string channelName;
+	
+	recvPacket >> channelName;
+	
+	Log.Debug("CMSG_SET_CHANNEL_WATCH %s Channel: %s", _player->GetName(), channelName.c_str());
+}
+
+
+

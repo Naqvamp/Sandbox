@@ -342,6 +342,7 @@ protected:
 	void HandleCompleteCinematic(WorldPacket & recv_data);
 	void HandleInspectOpcode( WorldPacket & recv_data );
 
+
 	/// Gm Ticket System in GMTicket.cpp:
 	void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
 	void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
@@ -524,6 +525,7 @@ protected:
 	void HandleChannelAnnounce(WorldPacket& recvPacket);
 	void HandleChannelModerate(WorldPacket& recvPacket);
 	void HandleChannelNumMembersQuery(WorldPacket & recvPacket);
+	void HandleSetChannelWatchOpcode(WorldPacket & recvPacket);
 	void HandleChannelRosterQuery(WorldPacket & recvPacket);
 
 	// Duel
@@ -621,6 +623,7 @@ protected:
 
 	//Tutorials
 	void HandleTutorialFlag ( WorldPacket & recv_data );
+	
 	void HandleTutorialClear( WorldPacket & recv_data );
 	void HandleTutorialReset( WorldPacket & recv_data );
 
@@ -670,6 +673,7 @@ protected:
 	void HandleVoiceChatQueryOpcode(WorldPacket & recv_data);
 	void HandleChannelVoiceQueryOpcode(WorldPacket & recv_data);
 	void HandleSetAutoLootPassOpcode(WorldPacket & recv_data);
+	void HandleMeetingStoneInfoOpcode(WorldPacket & recv_data);	//Ported from MangosOne --Hemi
 
 	void HandleSetFriendNote(WorldPacket & recv_data);
 	void Handle38C(WorldPacket & recv_data);

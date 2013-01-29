@@ -51,7 +51,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
 	if(itemProto->InventoryType != 0 && !_player->GetItemInterface()->IsEquipped(itemProto->ItemId))
 	{	//Items must be equipped before using them if they are equippable. --Hemi
-		SystemMessage("You must equip that item to use it.");
+		_player->GetItemInterface()->BuildInventoryChangeError(tmpItem, NULL, INV_ERR_ITEM_LOCKED);
 		return;
 	}
 

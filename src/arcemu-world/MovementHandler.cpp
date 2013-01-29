@@ -659,6 +659,8 @@ void WorldSession::HandleTeleportToUnitOpcode(WorldPacket & recv_data)
 	if(!_player->IsInWorld())
 		return;
 
+	SendNotification("Debug test line: data recieved by the server %u", unk);
+		
 	if(!HasGMPermissions())
 	{
 		SendNotification("You do not have permission to use this function.");

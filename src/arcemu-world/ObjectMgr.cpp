@@ -2135,6 +2135,10 @@ void ObjectMgr::GenerateLevelUpInfo()
 				{
 					nextLvlXP = NextLevelXp[( Level - 1 )];
 				}
+				else if( Level > MAX_PREDEFINED_NEXTLEVELXP )
+				{	//Normalise EXP for levels above 70. Taken from above. --Hemi
+					nextLvlXP = ((int)((((double)(((8 * Level) + ((Level - 30) * 5)) * ((Level * 5) + 45)))/100)+0.5))*100;
+				}
 				else
 				{
 					// 2.2
@@ -2145,7 +2149,6 @@ void ObjectMgr::GenerateLevelUpInfo()
 					double XP = ( ( 8.0 * double( Level ) ) + DIFF ) * MXP;
 					nextLvlXP = (int)( ( XP / 100.0 ) + 0.5 ) * 100;
 				}
-
 				lvl->XPToNextLevel = nextLvlXP;
 				lastlvl = *lvl;
 				lastlvl.HP = lastlvl.HP;

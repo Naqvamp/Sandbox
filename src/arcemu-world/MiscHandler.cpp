@@ -817,95 +817,78 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 }
 
 void WorldSession::HandleLogoutRequestOpcode( WorldPacket & recv_data )
-{
+{	//Changed permissions. --Hemi
 	Player *pPlayer = GetPlayer();
 	WorldPacket data( SMSG_LOGOUT_RESPONSE, 5 );
-
 	sLog.outDebug( "WORLD: Recvd CMSG_LOGOUT_REQUEST Message" );
-	sLog.outString("[%s] has logged out.", _player->GetName());
+
 	if(pPlayer)
 	{
 		sHookInterface.OnLogoutRequest(pPlayer);
 
-		if(GetPermissionCount() > 0)
-		{	//GM's will be able to instantly logout granted they're not in combat. --Hemi
-			//Logout on NEXT sessionupdate to preserve processing of dead packets (all pending ones should be processed)
-			SetLogoutTimer(1);
-			return;
-		}
-
-		if( pPlayer->CombatStatus.IsInCombat() ||	//can't quit still in combat
-			pPlayer->DuelingWith != NULL )			//can't quit still dueling or attacking
-		{
+		if( pPlayer->CombatStatus.IsInCombat() || pPlayer->DuelingWith != NULL )
+		{	//If in combat, or dueling someone; don't logout.
         	data << uint32(1) << uint8(0);
 			SendPacket( &data );
 			return;
 		}
 
-		if(pPlayer->m_isResting ||	  // We are resting so log out instantly
-			pPlayer->GetTaxiState())  // or we are on a taxi
-		{
-			//Logout on NEXT sessionupdate to preserve processing of dead packets (all pending ones should be processed)
+		sLog.outString("[%s] has logged out.", pPlayer->GetName());
+
+		if(HasGMPermissions() && !pPlayer->IsPvPFlagged())
+		{	//If is a GM and not PVP flagged; Logout on next session update.
 			SetLogoutTimer(1);
 			return;
 		}
 
-		data << uint32(0); //Filler
-		data << uint8(0); //Logout accepted
+		data << uint32(0) << uint8(0);	//Logout accepted.
 		SendPacket( &data );
 
-		//stop player from moving
-		pPlayer->SetMovement(MOVE_ROOT,1);
-
-		// Set the "player locked" flag, to prevent movement
-		pPlayer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOCK_PLAYER);
-
-		//make player sit
-		pPlayer->SetStandState(STANDSTATE_SIT);
+		pPlayer->SetMovement(MOVE_ROOT,1);	//Prevent movement.
+		pPlayer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOCK_PLAYER);	//Lock the player to prevent movement.
+		pPlayer->SetStandState(STANDSTATE_SIT);	//Force the player to sit.
 		SetLogoutTimer(20000);
 	}
-	/*
-	> 0 = You can't Logout Now
-	*/
 }
 
 void WorldSession::HandlePlayerLogoutOpcode( WorldPacket & recv_data )
-{
+{	//Changed permissions. --Hemi
 	Player *pPlayer = GetPlayer();
 	sLog.outDebug( "WORLD: Recvd CMSG_PLAYER_LOGOUT Message" );
-	sLog.outString("[%s] has logged out", _player->GetName());
 
-	if(!HasGMPermissions() || pPlayer->CombatStatus.IsInCombat())	//Prevent the command from being used while in combat. --Hemi
+	if( !HasGMPermissions() || pPlayer->CombatStatus.IsInCombat() )
+	{	//If not a GM or in combat; don't logout.
 		SendNotification(NOTIFICATION_MESSAGE_NO_PERMISSION);
+	}
 	else
-		LogoutPlayer(true);
+	{
+		if( !pPlayer->IsPvPFlagged() )
+		{
+			sLog.outString("[%s] has logged out.", _player->GetName());
+			LogoutPlayer(true);	//Only if the player isn't PVP flagged.
+		}
+		else
+			SendNotification("You can not use this command while PVP flagged.");
+	}
 }
 
 void WorldSession::HandleLogoutCancelOpcode( WorldPacket & recv_data )
-{
-
-	sLog.outDebug( "WORLD: Recvd CMSG_LOGOUT_CANCEL Message" );
+{	//Changed permissions and prevented use while not logging out. --Hemi
+	sLog.outDebug( "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
 
 	Player *pPlayer = GetPlayer();
-	if(!pPlayer)
-		return;
+	if( !pPlayer || !_logoutTime)
+		return;	//Prevent abuse.
 
-	//Cancel logout Timer
-	SetLogoutTimer(0);
+	OutPacket(SMSG_LOGOUT_CANCEL_ACK);	//Inform the player's client.
+		
+	SetLogoutTimer(0);	//Cancel logout Timer
+	pPlayer->SetMovement(MOVE_UNROOT,5);	//Allow movement.
+	pPlayer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOCK_PLAYER);	//Unlock the player to allow movement.
+	pPlayer->SetStandState(STANDSTATE_STAND);	//Force the player to stand.
 
-	//tell client about cancel
-	OutPacket(SMSG_LOGOUT_CANCEL_ACK);
-
-	//unroot player
-	pPlayer->SetMovement(MOVE_UNROOT,5);
-
-	// Remove the "player locked" flag, to allow movement
-	pPlayer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOCK_PLAYER);
-
-	//make player stand
-	pPlayer->SetStandState(STANDSTATE_STAND);
-
-	sLog.outDebug( "WORLD: sent SMSG_LOGOUT_CANCEL_ACK Message" );
+	sLog.outString("[%s] has canceled %s logout.", _player->GetName(), ( _player->getGender() ? "her" : "his" ));
+	sLog.outDebug("WORLD: sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
 void WorldSession::HandleZoneUpdateOpcode( WorldPacket & recv_data )
@@ -2360,4 +2343,13 @@ void WorldSession::HandleSetAutoLootPassOpcode(WorldPacket & recv_data)
 		_player->BroadcastMessage(_player->GetSession()->LocalizedWorldSrv(67), on ? _player->GetSession()->LocalizedWorldSrv(68) : _player->GetSession()->LocalizedWorldSrv(69));
 
 	_player->m_passOnLoot = (on!=0) ? true : false;
+}
+
+void WorldSession::HandleMeetingStoneInfoOpcode(WorldPacket & recv_data)
+{	//Ported from MangosOne --Hemi
+    sLog.outDebug("WORLD: Received CMSG_MEETING_STONE_INFO");
+
+    WorldPacket data(SMSG_MEETINGSTONE_SETQUEUE, 5);
+    data << uint32(0) << uint8(6);
+    SendPacket(&data);
 }

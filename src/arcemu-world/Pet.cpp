@@ -850,7 +850,7 @@ uint32 Pet::GetNextLevelXP(uint32 level)
 	{
 		nextLvlXP = NextLevelXp[ level - 1 ];
 	}
-	else
+	else if( level > MAX_PREDEFINED_NEXTLEVELXP )
 	{
 		nextLvlXP = ((int)((((double)(((8 * level) + ((level - 30) * 5)) * ((level * 5) + 45)))/100)+0.5))*100;
 	}

@@ -392,6 +392,31 @@ bool ChatHandler::HandleLearnTalentCommand(const char* args, WorldSession * m_se
 	return true;
 }
 
+bool ChatHandler::HandleLearnVotersCommand(const char* args, WorldSession *m_session)
+{	//Command to learn all UW voter spells. --Hemi
+	Player *plr = m_session->GetPlayer();
+	if(!plr)
+	{
+		plr = m_session->GetPlayer();
+		SystemMessage(m_session, "Auto-targeting self.");
+	}
+	if(!plr)
+		return false;
+	static uint32 voters[60] = 
+	{
+		750, 822, 5227, 7164, 7744, 8737, 9077, 10059, 11416, 11417, 11418, 
+		11419, 11420, 11789, 13159, 20549, 20550, 20573, 20589, 20591, 20598, 
+		20600, 20798, 25392, 25431, 25898, 26990, 26992, 27052, 27053, 27054, 
+		27055, 27056, 27124, 28148, 28880, 32266, 32267, 33691, 35236, 35717, 
+		35853, 36839, 39055, 40497, 43689, 48074, 58984, 0
+	};
+	for(uint32 i = 0; voters[i] != 0; ++i)
+	{
+		plr->addSpell(voters[i]);
+	}
+	return true;
+}
+
 bool ChatHandler::HandleUnlearnCommand(const char* args, WorldSession * m_session)
 {	//Moved Unlearn command to the level 3 table. --Hemi
 	Player * plr = getSelectedChar(m_session, true);

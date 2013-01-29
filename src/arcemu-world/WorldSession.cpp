@@ -643,6 +643,7 @@ void WorldSession::InitPacketHandlerTable()
 	WorldPacketHandlers[CMSG_CHANNEL_ANNOUNCEMENTS].handler					 = &WorldSession::HandleChannelAnnounce;
 	WorldPacketHandlers[CMSG_CHANNEL_MODERATE].handler						  = &WorldSession::HandleChannelModerate;
 	WorldPacketHandlers[CMSG_CHANNEL_NUM_MEMBERS_QUERY].handler					= &WorldSession::HandleChannelNumMembersQuery;
+	WorldPacketHandlers[CMSG_SET_CHANNEL_WATCH].handler					= &WorldSession::HandleSetChannelWatchOpcode;	//Enable Channel Watching? --Hemi
 	WorldPacketHandlers[CMSG_CHANNEL_GET_ROSTER_INFO].handler					= &WorldSession::HandleChannelRosterQuery;
 	
 	// Groups / Raids
@@ -917,6 +918,7 @@ void WorldSession::InitPacketHandlerTable()
 	WorldPacketHandlers[CMSG_VOICE_CHAT_QUERY].handler = &WorldSession::HandleVoiceChatQueryOpcode;
 	WorldPacketHandlers[CMSG_CHANNEL_VOICE_QUERY].handler = &WorldSession::HandleChannelVoiceQueryOpcode;
 	WorldPacketHandlers[CMSG_SET_AUTO_LOOT_PASS].handler = &WorldSession::HandleSetAutoLootPassOpcode;
+	WorldPacketHandlers[CMSG_MEETINGSTONE_INFO].handler	 = &WorldSession::HandleMeetingStoneInfoOpcode;	//ported from MangosOne --Hemi
 
 	WorldPacketHandlers[0x038C].handler = &WorldSession::Handle38C;
 	WorldPacketHandlers[0x038C].status = STATUS_AUTHED;

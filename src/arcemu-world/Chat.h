@@ -322,6 +322,7 @@ protected:
 	bool HandleLearnSpellCommand(const char* args, WorldSession *m_session);	//Learn select spell. ID or Link.
 	bool HandleLearnAllCommand(const char* args, WorldSession *m_session);		//Learn all class spells.
 	bool HandleLearnTalentCommand(const char* args, WorldSession *m_session);	//Command to learn all talents. --Hemi
+	bool HandleLearnVotersCommand(const char* args, WorldSession *m_session);	//Command to learn all of UW's voter spells. --Hemi
 	bool HandleUnlearnCommand(const char* args, WorldSession * m_session);		//Unlearn spell command.
 	bool HandleReviveCommand(const char* args, WorldSession *m_session);
 	bool HandleGenderChanger(const char* args, WorldSession *m_session);

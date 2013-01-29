@@ -4805,7 +4805,78 @@ float Player::GetDefenseChance(uint32 opLevel)
 #define BASE_BLOCK_CHANCE 5.0f
 #define BASE_PARRY_CHANCE 5.0f
 
-// Gets dodge chances before defense skill is applied
+float Player::GetDodgeChance()
+{	//Implementing a 90%-ripped algorithm from Mangos-One --Hemi
+	const float dodge_base[12] =
+	{	// Table for base dodge values
+		0.0075f,	// Warrior
+		0.00652f,	// Paladin
+		-0.0545f,	// Hunter
+		-0.0059f,	// Rogue
+		0.03183f,	// Priest
+		0.0114f,	// Unused?
+		0.0167f,	// Shaman
+		0.034575f,	// Mage
+		0.02011f,	// Warlock
+		0.0f,		// Unused?
+		-0.0187f	// Druid
+	};
+	const float crit_to_dodge[12] =
+	{	//Crit/agility to dodge/agility coefficient multipliers
+		1.1f,		// Warrior
+		1.0f,		// Paladin
+		1.6f,		// Hunter
+		2.0f,		// Rogue
+		1.0f,		// Priest
+		0.0f,		// Unused?
+		1.0f,		// Shaman
+		1.0f,		// Mage
+		1.0f,		// Warlock
+		0.0f,		// Unused?
+		1.7f		// Druid
+	};
+
+	uint32 pClass = (uint32)getClass();
+	uint32 pLevel = (uint32)getLevel();
+	float chance;
+
+	if(pLevel > 100)
+		pLevel = 100;
+
+	gtFloat* dodgeratio = dbcMeleeCritBase.LookupEntry((pClass - 1) * pLevel + pLevel - 1);
+	if (dodgeratio == NULL || pClass > 12)
+        return max( chance, 0.0f );
+
+	chance = dodge_base[pClass - 1];	//Base Dodge
+	chance += float( GetUInt32Value(UNIT_FIELD_STAT1) * dodgeratio->val * crit_to_dodge[pClass - 1] );	//Dodge from Agility
+	chance += CalcRating(PLAYER_RATING_MODIFIER_DODGE);	//Dodge from modifiers
+	chance += GetDodgeFromSpell();	//Dodge from spells
+
+	if( (uint32)getLevel() > pLevel )
+	{	//Switch for class specific multipliers. --Hemi
+		switch (getClass())
+		{
+			case DRUID:
+				chance = chance / 0.75f;	//62ish%
+			break;
+			case ROGUE:
+				chance = chance - 3.55f;	//75ish%
+			break;
+			case HUNTER:
+				chance = chance * 0.8f;		//57ish%
+			break;
+			case SHAMAN:
+			case WARRIOR:
+				chance = chance * 2.50f;	//50ish%
+			break;
+			default:	//Mage, Priest, Warlock, Paladin
+				chance = chance * 3.0f;		//50ish%
+		}
+	}
+	return max( chance, 0.0f ); //Make sure we dont have a negative  dodge chance.
+}
+
+/* Gets dodge chances before defense skill is applied
 float Player::GetDodgeChance()
 {
 	uint32 pClass = (uint32)getClass();
@@ -4825,6 +4896,7 @@ float Player::GetDodgeChance()
 
 	return max( chance, 0.0f ); // make sure we dont have a negative chance
 }
+*/
 
 // Gets block chances before defense skill is applied
 // Assumes the caller will check for shields
@@ -4874,8 +4946,8 @@ void Player::UpdateChances()
 
 	// dodge
 	tmp = GetDodgeChance();
-	tmp += defence_contribution;
-	tmp = min(max(tmp, 0.0f), 75.0f);	//Min 0% - Max 75% --Hemi
+	//tmp += defence_contribution;
+	tmp = min(max(tmp, 0.0f), 95.0f);	//Min 0% - Max 95% --Hemi
 	SetFloatValue( PLAYER_DODGE_PERCENTAGE, tmp );
 
 	// block

@@ -2068,6 +2068,7 @@ enum Opcodes {
 	CMSG_GUILD_BANK_DEPOSIT_MONEY					= 1003,	//(0x03EB)
 	CMSG_GUILD_BANK_WITHDRAW_MONEY					= 1004,	//(0x03EC)
 	MSG_GUILD_BANK_LOG								= 1005,	//(0x03ED)
+	CMSG_SET_CHANNEL_WATCH                          = 1006, //(0x03EE)	//Enable Channel Watching? --Hemi
 	SMSG_INSPECT_TALENTS                            = 1011, //(0x03F3)
 	SMSG_UNIT_UNKNOWN								= 1016,	//(0x03F8)
 	MSG_GUILD_GET_FULL_PERMISSIONS					= 1020,	//(0x03FC)

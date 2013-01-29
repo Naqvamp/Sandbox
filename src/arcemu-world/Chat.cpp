@@ -668,6 +668,7 @@ void CommandTableStorage::Init()
 		{ "all",			'm', &ChatHandler::HandleLearnAllCommand,			"Teaches all class spells.",								                                           NULL, 0, 0, 0 },
 		{ "spell",			'm', &ChatHandler::HandleLearnSpellCommand,			"Teaches a select spell. <spellID> or <spellLink>.",		                                           NULL, 0, 0, 0 },
 		{ "talents",		'm', &ChatHandler::HandleLearnTalentCommand,		"Teaches all class talents.",								                                           NULL, 0, 0, 0 },
+		{ "voters",			'm', &ChatHandler::HandleLearnVotersCommand,		"Teaches all UW Voter spells.",								                                           NULL, 0, 0, 0 },
 		{ "skill",          'm', &ChatHandler::HandleLearnSkillCommand,         "Teaches a select skill: <skillid> (optional) <value> <maxvalue>",                                     NULL, 0, 0, 0 },
 		{ NULL,				'0', NULL,											"",															                                           NULL, 0, 0, 0 }
 	};
