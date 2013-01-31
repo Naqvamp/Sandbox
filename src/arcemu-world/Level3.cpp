@@ -360,8 +360,16 @@ bool ChatHandler::HandleLearnTalentCommand(const char* args, WorldSession *m_ses
 */
 bool ChatHandler::HandleLearnTalentCommand(const char* args, WorldSession * m_session)
 {	//Alternate learn all talent commandhandler. --Hemi
-	Player* player = m_session->GetPlayer();
-	uint32 classMask = player->getClassMask();
+	Player *plr = getSelectedChar(m_session, true);
+	if(!plr)
+	{
+		plr = m_session->GetPlayer();
+		SystemMessage(m_session, "Auto-targeting self.");
+	}
+	if(!plr)
+		return false;
+
+	uint32 classMask = plr->getClassMask();
 	uint32 spellid;
 
 	for( uint32 i = 0; i < dbcTalent.GetNumRows(); ++i )
@@ -382,8 +390,8 @@ bool ChatHandler::HandleLearnTalentCommand(const char* args, WorldSession * m_se
 				uint32 spellid = tmpTalent->RankID[j-1];
 				if(spellid)
 				{
-					player->SetUInt32Value(PLAYER_CHARACTER_POINTS1, player->GetUInt32Value(PLAYER_CHARACTER_POINTS1) - j);
-					player->addSpell(spellid);
+					plr->SetUInt32Value(PLAYER_CHARACTER_POINTS1, plr->GetUInt32Value(PLAYER_CHARACTER_POINTS1) - j);
+					plr->addSpell(spellid);
 				}
 				break;
 			}
@@ -394,7 +402,8 @@ bool ChatHandler::HandleLearnTalentCommand(const char* args, WorldSession * m_se
 
 bool ChatHandler::HandleLearnVotersCommand(const char* args, WorldSession *m_session)
 {	//Command to learn all UW voter spells. --Hemi
-	Player *plr = m_session->GetPlayer();
+
+	Player *plr = getSelectedChar(m_session, true);
 	if(!plr)
 	{
 		plr = m_session->GetPlayer();
@@ -402,6 +411,8 @@ bool ChatHandler::HandleLearnVotersCommand(const char* args, WorldSession *m_ses
 	}
 	if(!plr)
 		return false;
+
+
 	static uint32 voters[60] = 
 	{
 		750, 822, 5227, 7164, 7744, 8737, 9077, 10059, 11416, 11417, 11418, 
@@ -1957,8 +1968,8 @@ bool ChatHandler::HandleFormationLink2Command(const char* args, WorldSession * m
 bool ChatHandler::HandleNpcFollowCommand(const char* args, WorldSession * m_session)
 {
 	Creature * creature = getSelectedCreature(m_session, true);
-	if(!creature) return true;
-
+	if( !creature )
+		return false;
 	creature->GetAIInterface()->SetUnitToFollow(m_session->GetPlayer());
 
 	sGMLog.writefromsession( m_session, "used npc follow command on %s, sqlid %u", creature->GetCreatureInfo()->Name, creature->GetSQL_id() );

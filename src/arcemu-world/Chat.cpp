@@ -907,9 +907,9 @@ int ChatHandler::ParseCommands(const char* text, WorldSession *session)
 	if(text[0] != '!' && text[0] != '.') // let's not confuse users
 		return 0;
 
-	/* skip '..' :P that pisses me off */
-	if(text[1] == '.')
-		return 0;
+	/* skip '..' & '!!' :P that pisses me off */
+	if(text[1] == '.' || text[1] == '!')
+		return 0;	//Added exclaimation mark to this check. --Hemi
 
 	text++;
 

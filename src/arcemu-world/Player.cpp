@@ -831,9 +831,29 @@ void Player::Update( uint32 p_time )
 	Unit::Update( p_time );
 	uint32 mstime = getMSTime();
 
+	Unit *pTarget = GetMapMgr()->GetUnit( GetSelection() );
+	if ( pTarget )
+	{	//Implement a stop-attack on invalid target. --Hemi
+		bool AtckStatus = isAttackable( m_session->GetPlayer(), pTarget, false );
+		if( ( !AtckStatus && m_onAutoShot ) || ( !AtckStatus && m_attacking ) )
+		{	//Stop attacking if the target is not valid. --Hemi
+			if( m_onAutoShot )
+			{	//Disable auto-attack (Ranged)
+				SpellEntry *spellID = dbcSpell.LookupEntry(m_session->GetPlayer()->m_AutoShotSpell->Id);
+				GetSession()->OutPacket( SMSG_CANCEL_AUTO_REPEAT, 4, spellID );
+				m_session->GetPlayer()->m_onAutoShot = false;
+			}
+			else if( m_attacking )
+			{	//Disable auto-attack (Melee)
+				m_session->GetPlayer()->EventAttackStop();
+				m_session->GetPlayer()->smsg_AttackStop(pTarget);
+			}
+			m_session->SendNotification("Invalid target.");	//Send an on-screen message to the player.
+		}
+	}
+
 	if(m_attacking)
-	{
-		// Check attack timer.
+	{	// Check attack timer.
 		if(mstime >= m_attackTimer)
 			_EventAttack(false);
 
@@ -844,13 +864,11 @@ void Player::Update( uint32 p_time )
 	if( m_onAutoShot)
 	{
 		if( m_AutoShotAttackTimer > p_time )
-		{
-			//sLog.outDebug( "HUNTER AUTOSHOT 0) %i, %i", m_AutoShotAttackTimer, p_time );
+		{	//sLog.outDebug( "HUNTER AUTOSHOT 0) %i, %i", m_AutoShotAttackTimer, p_time );
 			m_AutoShotAttackTimer -= p_time;
 		}
 		else
-		{
-			//sLog.outDebug( "HUNTER AUTOSHOT 1) %i", p_time );
+		{	//sLog.outDebug( "HUNTER AUTOSHOT 1) %i", p_time );
 			EventRepeatSpell();
 		}
 	}
@@ -864,11 +882,9 @@ void Player::Update( uint32 p_time )
 	
 	// Breathing
 	if( m_UnderwaterState & UNDERWATERSTATE_UNDERWATER )
-	{
-		// keep subtracting timer
+	{	// keep subtracting timer
 		if( m_UnderwaterTime )
-		{
-			// not taking dmg yet
+		{	// not taking dmg yet
 			if(p_time >= m_UnderwaterTime)
 				m_UnderwaterTime = 0;
 			else
@@ -876,8 +892,7 @@ void Player::Update( uint32 p_time )
 		}
 
 		if( !m_UnderwaterTime )
-		{
-			// check last damage dealt timestamp, and if enough time has elapsed deal damage
+		{	// check last damage dealt timestamp, and if enough time has elapsed deal damage
 			if( mstime >= m_UnderwaterLastDmg )
 			{
 				uint32 damage = m_uint32Values[UNIT_FIELD_MAXHEALTH] / 10;
@@ -891,11 +906,9 @@ void Player::Update( uint32 p_time )
 		}
 	}
 	else
-	{
-		// check if we're not on a full breath timer
+	{	// check if we're not on a full breath timer
 		if(m_UnderwaterTime < m_UnderwaterMaxTime)
-		{
-			// regenning
+		{	// regenning
 			m_UnderwaterTime += (p_time * 10);
 
 			if(m_UnderwaterTime >= m_UnderwaterMaxTime)
@@ -908,8 +921,7 @@ void Player::Update( uint32 p_time )
 
 	// Lava Damage
 	if(m_UnderwaterState & UNDERWATERSTATE_LAVA)
-	{
-		// check last damage dealt timestamp, and if enough time has elapsed deal damage
+	{	// check last damage dealt timestamp, and if enough time has elapsed deal damage
 		if(mstime >= m_UnderwaterLastDmg)
 		{
 			uint32 damage = m_uint32Values[UNIT_FIELD_MAXHEALTH] / 5;
@@ -927,8 +939,7 @@ void Player::Update( uint32 p_time )
 		SaveToDB(false);
 
 	if(m_CurrentTransporter && !m_lockTransportVariables)
-	{
-		// Update our position, using trnasporter X/Y
+	{	// Update our position, using trnasporter X/Y
 		float c_tposx = m_CurrentTransporter->GetPositionX() + m_TransporterX;
 		float c_tposy = m_CurrentTransporter->GetPositionY() + m_TransporterY;
 		float c_tposz = m_CurrentTransporter->GetPositionZ() + m_TransporterZ;
@@ -5080,9 +5091,7 @@ void Player::UpdateAttackSpeed()
 	{
 		speed = weap->GetProto()->Delay;
 		SetUInt32Value( UNIT_FIELD_RANGEDATTACKTIME,
-			//( uint32 )( (float) speed / ( m_attack_speed[ MOD_RANGED ] * ( 1.0f + CalcRating( PLAYER_RATING_MODIFIER_RANGED_HASTE ) / 100.0f ) ) ) );
-			( uint32 )( (float) speed / ( m_attack_speed[ MOD_RANGED ] * ( 1.0f + CalcRating( PLAYER_RATING_MODIFIER_RANGED_HASTE ) / 16.0f ) ) ) );
-			//Normalising ranged attack speed to something similar to UW. --Hemi
+		( uint32 )( (float) speed / ( m_attack_speed[ MOD_RANGED ] * ( 1.0f + CalcRating( PLAYER_RATING_MODIFIER_RANGED_HASTE ) / 100.0f ) ) ) );
 	}
 }
 

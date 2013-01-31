@@ -922,24 +922,34 @@ void WorldSession::HandleSetTargetOpcode( WorldPacket & recv_data )
 	if( GetPlayer( ) != 0 ){
 		GetPlayer( )->SetTarget(guid);
 	}
-
-
 }
 
 void WorldSession::HandleSetSelectionOpcode( WorldPacket & recv_data )
-{
+{	/*Apply a bugfix to target swapping. Prevents players from swapping targets and attacking
+		unflagged monsters or players after casting a charge-like spell. --Hemi*/
 	uint64 guid;
 	recv_data >> guid;
+	
+	_player->SetUInt64Value(UNIT_FIELD_TARGET, guid);
 	_player->SetSelection(guid);
 
 	if(_player->m_comboPoints)
 		_player->UpdateComboPoints();
 
-	_player->SetUInt64Value(UNIT_FIELD_TARGET, guid);
-	if(guid == 0) // deselected target
+	Unit *pTarget = _player->GetMapMgr()->GetUnit(guid);
+	if(!pTarget)
 	{
-		_player->CombatStatusHandler_ResetPvPTimeout();
-		//_player->CombatStatus.ClearPrimaryAttackTarget();
+		sLog.outDebug("WORLD: "I64FMT" does not exist.", guid);
+		return;
+	}
+	if( _player->IsAttacking() )
+	{	//Prevent attacking players when swapping targets. Charge bug. --Hemi
+		bool attackablestatus = isAttackable( GetPlayer(), pTarget, false );
+		if(attackablestatus == false)
+		{	//The player is unattackable. Send a stop attack packet.
+			HandleAttackStopOpcode(recv_data);
+			return;
+		}
 	}
 }
 
@@ -1619,7 +1629,7 @@ void WorldSession::HandlePlayedTimeOpcode( WorldPacket & recv_data )
 }
 
 void WorldSession::HandleInspectOpcode( WorldPacket & recv_data )
-{
+{	//Apply a bugfix. Prevents players from attacking people they inspect.	--Hemi
 	CHECK_PACKET_SIZE( recv_data, 8 );
 	CHECK_INWORLD_RETURN
 
@@ -1635,9 +1645,14 @@ void WorldSession::HandleInspectOpcode( WorldPacket & recv_data )
 		sLog.outError( "HandleInspectOpcode: guid was null" );
 		return;
 	}
-
+/*
+	if( _player->IsAttacking() )
+	{	//Prevent players from attacking people they inspect while attacking.	--Hemi
+		SendNotification("You can not inspect players while attacking.");
+		return;
+	}
+*/
 	_player->SetUInt64Value(UNIT_FIELD_TARGET, guid);
-
 	_player->SetSelection( guid );
 
 	if(_player->m_comboPoints)

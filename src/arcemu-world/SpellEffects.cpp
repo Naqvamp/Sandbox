@@ -5438,6 +5438,12 @@ void Spell::SpellEffectCharge(uint32 i)
 	// trigger an event to reset speedhack detection
 	if( p_caster )
 	{
+		if( p_caster->m_onAutoShot )
+		{	//Disable Auto Shot after charging a player. --Hemi
+			SpellEntry *spellID = dbcSpell.LookupEntry(p_caster->m_AutoShotSpell->Id);
+			p_caster->GetSession()->OutPacket( SMSG_CANCEL_AUTO_REPEAT, 4, spellID );
+			p_caster->m_onAutoShot = false;
+		}
 		p_caster->EventAttackStart();
 		p_caster->SpeedCheatDelay( time + 1000 );
 		p_caster->z_axisposition = 0.0f;
